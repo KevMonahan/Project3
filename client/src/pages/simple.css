@@ -1,0 +1,11 @@
+.third{
+    display: block;
+    width: 33%;
+    border: 1px solid black;
+    height: 100vh;
+}
+.flexy{
+
+display: flex;
+
+}
