@@ -17,7 +17,9 @@ router.post("/chat/:articleId", function(req, res){
 });
 //get user by user ID
 router.get("/users/:userId", function(req, res){
-    db.Chat.find({})
+    db.Chat.find({_id: req.params.userId}).then(function(dbUser){
+        res.json(dbUser);
+    })
 });
 //post new users
 router.post("/users", function(req, res){
