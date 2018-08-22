@@ -15,7 +15,12 @@ const UserSchema = new Schema({
         required: true
     },
     reactions: [{
-        type: Schema.Types.ObjectId
+        type: Schema.Types.ObjectId,
+        ref: "Reaction"
+    }],
+    articles: [{
+        type: Schema.Types.ObjectId,
+        ref: "Article"
     }]
 });
 
