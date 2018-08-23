@@ -1,4 +1,5 @@
 var router = require("express").Router();
+var db = require("../models");
 
 
 //get chats by user ID
@@ -94,11 +95,11 @@ router.post("/api/reactions", function (req, res) {
  //add a new source (Needed?)
 // router.post("/api/sources", function (req, res) {
 
-// });
+//});
  //get source by source ID
-// router.get("/api/sources/:sourceId", function (req, res) {
+//router.get("/api/sources/:sourceId", function (req, res) {
 
-// });
+//});
 
 
 module.exports = router;

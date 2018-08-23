@@ -2,9 +2,14 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ReactionSchema = new Schema({
-    article_id: {
-        type: Object,
+    _articleId: {
+        type: Schema.Types.ObjectId,
         ref: "Article",
+        required: true
+    },
+    _userId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
     initial_opinion: {
@@ -13,10 +18,6 @@ const ReactionSchema = new Schema({
     wants_discussion: {
         type: Boolean,
         default: false
-    },
-    discussion_id: {
-        type: Object,
-        ref: "Discussion"
     }
 });
 
