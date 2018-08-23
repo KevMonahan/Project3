@@ -1,9 +1,12 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const morgan = require("morgan");
 const PORT = process.env.PORT || 3001;
 const app = express();
-const router = require("./client/routes");
+// const router = require("./client/routes");
+const passportInit = require("./passport-init.js");
 const mongoose = require("mongoose");
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/Project3";
 
@@ -14,7 +17,9 @@ mongoose.connect(MONGODB_URI);
 // Define middleware here
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(router);
+app.use(cookieParser());
+app.use(morgan("combined"));
+const passport = passportInit(app); //also sets routes
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
