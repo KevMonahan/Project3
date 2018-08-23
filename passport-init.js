@@ -12,7 +12,7 @@ function setup(expressApp) {
     expressApp.use(passport.initialize());
     expressApp.use(passport.session());
     // expressApp.use(require("./client/routes"));
-    expressApp.use(require("./register.js"));
+    expressApp.use(require("./register.js")(passport));
     return passport;
 }
 
