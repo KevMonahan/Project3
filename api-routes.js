@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const db = require("../models");
+const db = require("./client/models");
 const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 const crypto = require("crypto");
 
@@ -89,14 +89,14 @@ module.exports = function (passport) {
 
     router.post("/api/register", function (req, res) {
         console.log("in /register");
-
+        console.log(req.body);
         db.User.findOne({ username: req.body.username.toLowerCase() }, function (err, dbUser) {
 
             if (err) {
                 console.log(err);
             }
             if (dbUser) {
-                res.json({ "success": false, "error": "Username already taken, pick another" });
+                res.json({ "success": false, "error": "Username already taken, pick another", "user": undefined });
             } else {
                 const newUser = {};
                 newUser["username"] = req.body.username;
@@ -113,7 +113,7 @@ module.exports = function (passport) {
                         if (erronOnLogin) {
                             console.log(erronOnLogin);
                         }
-                        res.redirect("/home");
+                        res.json({"success": true, "error": undefined, "user": createdUser});
                     });
                 });
             }
@@ -122,7 +122,7 @@ module.exports = function (passport) {
 
     router.get("/api/logout", function(req, res) {
         req.logout();
-        res.redirect("/");
+        res.json(req.user);
     });
 
     router.get("/api/something", ensureLoggedIn(), function(req, res) {
