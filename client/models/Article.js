@@ -17,7 +17,7 @@ const ArticleSchema = new Schema({
         type: String,
         required: true
     },
-    source_id: {
+    _sourceId: {
         type: Schema.Types.ObjectId,
         ref: "Source"
     },
