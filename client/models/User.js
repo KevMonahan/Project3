@@ -14,6 +14,9 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String
+    },
     reactions: [{
         type: Schema.Types.ObjectId,
         ref: "Reaction"
@@ -24,5 +27,5 @@ const UserSchema = new Schema({
     }]
 });
 
-const User = mongoose.model("Reaction", UserSchema);
+const User = mongoose.model("User", UserSchema);
 module.exports = User;

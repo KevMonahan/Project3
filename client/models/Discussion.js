@@ -20,7 +20,7 @@ const DiscussionSchema = new Schema({
         type: Boolean,
         default: true
     },
-    notify_user_two {
+    notify_user_two: {
         type: Boolean,
         default: true
     },
