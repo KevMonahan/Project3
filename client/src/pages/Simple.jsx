@@ -37,15 +37,19 @@ class Simple extends Component {
         event.preventDefault();
 
         let formData = {
-            logusername: this.state.logusername,
-            logpssw: this.state.logpssw,
+            "username": this.state.logusername,
+            "password": this.state.logpssw,
         };
 
         console.log(formData);
 
         fetch('/api/login', {
             method: 'POST',
-            body: formData,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              },
+            body: JSON.stringify(formData)
         });
 
         // API.search(this.state.searchTerm, this.state.startYear, this.state.endYear)
@@ -68,9 +72,9 @@ class Simple extends Component {
         else{
 
         let formData = {
-            regusername: this.state.regusername,
-            regpssw: this.state.regpssw,
-            conpssw: this.state.conpssw,
+            "username": this.state.regusername,
+            "password": this.state.regpssw,
+            "email": "placeholder@gmail.com"
         };
 
 
@@ -78,7 +82,11 @@ class Simple extends Component {
 
         fetch('/api/register', {
             method: 'POST',
-            body: formData,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
         });
 
         }

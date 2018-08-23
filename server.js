@@ -5,7 +5,6 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const PORT = process.env.PORT || 3001;
 const app = express();
-// const router = require("./client/routes");
 const passportInit = require("./passport-init.js");
 const mongoose = require("mongoose");
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/Project3";
