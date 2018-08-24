@@ -48,9 +48,9 @@ module.exports = function (passport) {
         res.redirect("/");
     });
 
-    router.get("/something", ensureLoggedIn(), function(req, res) {
-        res.json({success:(req.user? "Yes":"No"), user:req.user});//test path protection
+    router.post("/something", ensureLoggedIn(), function(req, res) {
+        res.json({success:(req.user? "Yes":"No"), user:req.user});
     });
 
     return router;
-}
+};
