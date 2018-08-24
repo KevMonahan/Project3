@@ -11,7 +11,7 @@ function setup(expressApp) {
     expressApp.use(session);
     expressApp.use(passport.initialize());
     expressApp.use(passport.session());
-    let setUpRoutes = require("./api-routes.js");
+    let setUpRoutes = require("./routes/api-routes.js");
     console.log(passport);
     expressApp.use(setUpRoutes(passport));
     // expressApp.use(require("./api-routes.js")(passport));
