@@ -14,15 +14,23 @@ Logs the user into the application and stores all the users info in the cookie w
 * __Request__: 
 ```javascript
         {
-            "username":"MackySall",
-            "password":"Senegal1234"
+            "username":"therealneal",
+            "password":"rosebud123"
         }
 ```
 * __Response:__ (reponse is HTTP 401-unauthorized on failure)
 
 ```javascript
         {
-            "success": true
+            "success": true,
+            "user": {
+                "reactions": [],
+                "articles": [],
+                "_id": "5b8023daf01db00350e9629f",
+                "username": "therealneal",
+                "email": "neal@wizards.biz",
+                "__v": 0
+            }
         }
 ```
 
@@ -34,9 +42,9 @@ Registers a new account, saves it in the database, and logs the user in so `req.
 * **Request:** 
 ```javascript
         {
-            "username":"williamcarloswilliams",
-            "password":"redwheelbarrow12",
-            "email":"willyTheModern@poetry.biz"
+            "username":"therealneal",
+            "password":"rosebud123",
+            "email":"neal@wizards.biz"
         }
 ```
 * **Response:** Property success equal to `true` when registration is successful. Includes error property on failure with reason for failure.
@@ -44,7 +52,14 @@ Registers a new account, saves it in the database, and logs the user in so `req.
 _Success:_
 ```javascript
         {
-            "success": true
+            "user": {
+                "reactions": [],
+                "articles": [],
+                "_id": "5b8023daf01db00350e9629f",
+                "username": "therealneal",
+                "email": "neal@wizards.biz",
+                "__v": 0
+            }
         }
 ```
 _Failure:_
