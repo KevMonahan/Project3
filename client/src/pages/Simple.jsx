@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import Input from "../components/Input.js";
+import Button from '@material-ui/core/Button';
 import './simple.css';
-
-
 
 
 
@@ -11,7 +10,6 @@ class Simple extends Component {
         super(props);
 
         this.state = {
-
             articleText: "",
             articleId: "",
             regusername:"",
@@ -27,7 +25,23 @@ class Simple extends Component {
         }
     }
 
-     // JS functions goes here
+    //we need to make the radio button that sets the users reaction level
+
+    componentDidMount() {
+        this.loadReactions();
+    }
+
+    loadReactions = () => {
+        fetch('/api/reactions/' + this.state.article_id)
+            .then(response => response.json())
+            .then(myJson => {
+                this.setState({ reactions: myJson });
+                console.log(myJson);
+                console.log(this.state.reactions)
+            });
+    }
+
+    // JS functions goes here
 
     handleInputChange = event => {
         const { name, value } = event.target;
@@ -63,18 +77,12 @@ class Simple extends Component {
         }).catch((reason) => {
             this.setState({"error": "Username or password incorrect!"});
         });
-
-        // API.search(this.state.searchTerm, this.state.startYear, this.state.endYear)
-        //     .then(res => {
-        //         this.setState({ results: res.data.response.docs }); console.log(this.state);
-        //     })
-        //     // .then(console.log(this.state.results))
-        //     .catch(err => console.log(err));
     };
+
+
 
     handleRegister = event => {
         event.preventDefault();
-
 
         if (this.state.regpssw !== this.state.conpssw){
             console.log("passwords must match");
@@ -88,7 +96,6 @@ class Simple extends Component {
             "password": this.state.regpssw,
             "email": this.state.email
         };
-
 
         console.log(formData);
 
@@ -113,7 +120,6 @@ class Simple extends Component {
     }
     };
 
-
     handleChat = event => {
         event.preventDefault();
 
@@ -130,7 +136,6 @@ class Simple extends Component {
 
         this.setState({chat: ""})
     };
-
 
     render () {
  
@@ -254,6 +259,19 @@ const homePage = (
         <div className = "third" >Article
 
             <p id="article"> Article stuff here</p>
+
+            
+            <ul>
+            {this.state.reactions.map(reaction=>
+            
+            <li>
+                <p>{reaction.initial_opinion}</p>
+                {reaction.wants_discussion ? <Button id={reaction._id} key={reaction._id} >Chat</Button> : ""}
+            </li>
+            )
+                        
+            }
+            </ul>
         
         </div>
 
