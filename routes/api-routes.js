@@ -97,8 +97,17 @@ module.exports = function (passport) {
         })
     });
 
-    router.post('/api/login', passport.authenticate("local"), function (req, res) {
-        res.json({"success": true});
+    router.post('/api/login', passport.authenticate("local"), function (req, res) {        
+
+        if (req.user) {
+            let newUser = req.user;
+            newUser.password_hash = undefined;
+            newUser.password_salt = undefined;
+            res.json({"success": true, "user": newUser})
+        } else {
+            res.json({"success": false});
+        }
+        
     });
 
     router.post("/api/register", function (req, res) {
@@ -113,7 +122,7 @@ module.exports = function (passport) {
                 res.json({ "success": false, "error": "Username already taken, pick another" });
             } else {
                 const newUser = {};
-                newUser["username"] = req.body.username;
+                newUser["username"] = req.body.username.toLowerCase();
                 newUser["email"] = req.body.email;
                 newUser["password_salt"] = crypto.randomBytes(132).toString('hex').slice(0, 132);
                 let hash = crypto.createHmac("sha512", newUser["password_salt"]);
@@ -127,7 +136,10 @@ module.exports = function (passport) {
                         if (erronOnLogin) {
                             console.log(erronOnLogin);
                         }
-                        res.json({"success": true, "error": undefined});
+
+                        createdUser["password_hash"] = undefined;
+                        createdUser["password_salt"] = undefined;
+                        res.json({"user": createdUser, "error": undefined});
                     });
                 });
             }
