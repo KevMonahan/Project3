@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const db = require("./client/models");
+const db = require("../client/models");
 const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 const crypto = require("crypto");
 
@@ -84,7 +84,7 @@ module.exports = function (passport) {
     });
 
     router.post('/api/login', passport.authenticate("local"), function (req, res) {
-        res.json(req.user);
+        res.json({"success": true});
     });
 
     router.post("/api/register", function (req, res) {
@@ -96,7 +96,7 @@ module.exports = function (passport) {
                 console.log(err);
             }
             if (dbUser) {
-                res.json({ "success": false, "error": "Username already taken, pick another", "user": undefined });
+                res.json({ "success": false, "error": "Username already taken, pick another" });
             } else {
                 const newUser = {};
                 newUser["username"] = req.body.username;
@@ -113,7 +113,7 @@ module.exports = function (passport) {
                         if (erronOnLogin) {
                             console.log(erronOnLogin);
                         }
-                        res.json({"success": true, "error": undefined, "user": createdUser});
+                        res.json({"success": true, "error": undefined});
                     });
                 });
             }
@@ -122,9 +122,10 @@ module.exports = function (passport) {
 
     router.get("/api/logout", function(req, res) {
         req.logout();
-        res.json(req.user);
+        res.json({"success": true});
     });
 
+    /* Temp path for testing path protection */
     router.get("/api/something", ensureLoggedIn(), function(req, res) {
         res.json({success:(req.user? "Yes":"No"), user:req.user});//test path protection
     });

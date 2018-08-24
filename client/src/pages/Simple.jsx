@@ -42,7 +42,7 @@ class Simple extends Component {
         };
 
         console.log(formData);
-
+        console.log(JSON.stringify(formData));
         fetch('/api/login', {
             method: 'POST',
             headers: {
