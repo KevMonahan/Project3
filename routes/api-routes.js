@@ -56,6 +56,20 @@ module.exports = function (passport) {
             res.json(dbArticle);
         })
     });
+    //get current articles
+    // router.get("/api/currentarticle", function (req, res) {
+    //     db.Article.find(req.query).then(function (dbArticle) {
+    //         res.json(dbArticle);
+    //     })
+    // });
+
+    router.get("/api/currentarticle", function (req, res) {
+        db.Article.findOne({}, {}, { sort: { 'created_at': 1 } }, function (err, post) {
+            res.json(post);
+        });
+    });
+
+
     //post new articles
     router.post("/api/articles", function (req, res) {
         db.Article.create(req.query).then(function (dbArticle) {
