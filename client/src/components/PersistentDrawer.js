@@ -19,6 +19,9 @@ import SendIcon from '@material-ui/icons/Send';
 import MailIcon from '@material-ui/icons/Mail';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ReportIcon from '@material-ui/icons/Report';
+import Reactions from "./Reactions.jsx";
+import Article from "./Article.jsx";
+import "./drawer.css";
 
 
 const drawerWidth = 300;
@@ -30,7 +33,7 @@ const styles = theme => ({
     appFrame: {
         height: "100vh",
         zIndex: 1,
-        // overflow: 'hidden',
+        overflow: 'hidden',
         position: 'relative',
         display: 'flex',
         width: '100%',
@@ -92,9 +95,24 @@ class PersistentDrawer extends React.Component {
             open: false,
             left: false,
             anchor: 'right',
+            article_id: []
         };
     }
 
+
+    componentDidMount() {
+        this.loadReactions();
+    }
+
+    loadReactions = () => {
+        fetch('/api/currentarticle')
+            .then(response => response.json())
+            .then(myJson => {
+                this.setState({ article_id: myJson._id });
+                console.log("myJson",myJson._id);
+                console.log(this.state.article_id)
+            });
+    }
 
     handleDrawerOpen = () => {
         if (!this.state.open) {
@@ -251,7 +269,11 @@ class PersistentDrawer extends React.Component {
                         <MenuIcon style={{ position: "absolute", top: "50px", right: "20px" }} onClick={this.handleDrawerOpen} />
                         <MenuIcon style={{ position: "absolute", top: "50px", left: "20px" }} onClick={this.toggleDrawer()} />
                         {/* <Button onClick={this.toggleDrawer()}>Open Left</Button> */}
-                        {this.props.children}
+                        <div id="scrollDiv" style={{width: "100%", height: "100%", overflow: "scroll"}}>
+                            <Article article={this.state.article}/>
+                            <Reactions/>
+                            {/* {this.props.children} */}
+                        </div>
                     </main>
 
                     {drawer}
