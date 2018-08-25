@@ -70,6 +70,36 @@ _Failure:_
         }
 ```
 
+## Check for existing user on page reload
+This can be used to check if there is a user already saved in the cookie (on page reload for example).
+
+* __Path:__ `/api/user`
+* __Method:__ GET
+* __Type:__ JSON
+* __Response:__
+
+_User exists:_
+```javascript
+        {
+            "user": {
+                "reactions": [],
+                "articles": [],
+                "_id": "5b80544fb19e7b0847637853",
+                "username": "loser",
+                "email": "loser@loser.org",
+                "__v": 0
+            }
+        }
+```
+_User is not available:_
+```javascript
+        {
+            "user": null
+        }
+```
+
+
+
 ## Logging out
 Logs the user out and destroys the current cookie so that `req.user` is no longer set.
 * **Path:** `api/logout`
