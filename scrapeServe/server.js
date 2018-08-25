@@ -76,7 +76,8 @@ request(url, function (error, response, html) {
 
 function kosArticleScrape() {
 
-    let url = "https://www.dailykos.com/";
+    let url = "https://www.dailykos.com";
+    // https://www.dailykos.com/user/main/history
 
     request(url, function (error, response, html) {
 
@@ -88,11 +89,19 @@ function kosArticleScrape() {
             var $ = cheerio.load(html);
 
             let site = $.html();
+            // console.log(site)
+
+            // console.log(site);
+
+            // console.log(kosLinks)
+
 
             let siteData = extractor(site, "en");
+            // console.log(siteData);
 
-            let newUrl = siteData.links[4].href;
-            // console.log("newUrl",newUrl);
+            let newUrl = siteData.links[0].href;
+
+            console.log("newUrl",newUrl);
 
             request(newUrl, function (error, response, html) {
 
@@ -107,7 +116,7 @@ function kosArticleScrape() {
 
                     let siteData = extractor(site, "en");
 
-                    // console.log(siteData.text);
+                    // console.log(siteData);
 
                     let formData = {
                         headline: siteData.title,
@@ -118,11 +127,11 @@ function kosArticleScrape() {
                         // "date": siteData.data,
                     }
 
-                    // console.log("formData", formData);
+                    console.log("formData", formData);
 
-                    db.Article.create(formData).then(function (dbArticle) {
-                        console.log("dbArticle", dbArticle);
-                    }).catch(err => console.log(err));
+                    // db.Article.create(formData).then(function (dbArticle) {
+                    //     console.log("dbArticle", dbArticle);
+                    // }).catch(err => console.log(err));
 
                 }
             })
@@ -132,7 +141,7 @@ function kosArticleScrape() {
 
 function foxArticleScrape() {
 
-    let url = "https://www.foxnews.com/";
+    let url = "http://insider.foxnews.com/latest";
 
     request(url, function (error, response, html) {
 
@@ -147,41 +156,42 @@ function foxArticleScrape() {
 
             let siteData = extractor(site, "en");
 
-            let newUrl = siteData.links[4].href;
+            console.log(siteData)
+            // let newUrl = siteData.links[0].href;
             // console.log("newUrl",newUrl);
 
-            request(newUrl, function (error, response, html) {
+            // request(newUrl, function (error, response, html) {
 
-                // First we'll check to make sure no errors occurred when making the request
+            //     // First we'll check to make sure no errors occurred when making the request
 
-                if (!error) {
-                    // Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
+            //     if (!error) {
+            //         // Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
 
-                    var $ = cheerio.load(html);
+            //         var $ = cheerio.load(html);
 
-                    let site = $.html();
+            //         let site = $.html();
 
-                    let siteData = extractor(site, "en");
+            //         let siteData = extractor(site, "en");
 
-                    // console.log(siteData.text);
+            //         // console.log(siteData.text);
 
-                    let formData = {
-                        headline: siteData.title,
-                        author: siteData.author[0],
-                        body: siteData.text,
-                        article_url: newUrl,
-                        // "source_id": ,
-                        // "date": siteData.data,
-                    }
+            //         let formData = {
+            //             headline: siteData.title,
+            //             author: siteData.author[0],
+            //             body: siteData.text,
+            //             article_url: newUrl,
+            //             // "source_id": ,
+            //             // "date": siteData.data,
+            //         }
 
-                    // console.log("formData", formData);
+            //         console.log("formData", formData);
 
-                    db.Article.create(formData).then(function (dbArticle) {
-                        console.log("dbArticle", dbArticle);
-                    }).catch(err => console.log(err));
+            //         // db.Article.create(formData).then(function (dbArticle) {
+            //         //     console.log("dbArticle", dbArticle);
+            //         // }).catch(err => console.log(err));
 
-                }
-            })
+            //     }
+            // })
         }
     })
 }
@@ -214,16 +224,16 @@ function blazeArticleScrape() {
             });
 
 
-            // console.log(blazeLinks);
+            console.log(blazeLinks[1].link);
 
             // let siteData = extractor(site, "en");
 
-            let newUrl = "https://www.theblaze.com" + blazeLinks[0];
+            let newUrl = "https://www.theblaze.com" + blazeLinks[1].link;
             // let newrUrl = siteData.links[4].href;
 
             // console.log(siteData);
 
-            console.log("newUrl",newUrl);
+            // console.log("newUrl",newUrl);
 
             request(newUrl, function (error, response, html) {
 
@@ -238,7 +248,7 @@ function blazeArticleScrape() {
 
                     let siteData = extractor(site, "en");
 
-                    console.log(siteData);
+                    // console.log(siteData);
 
                     let formData = {
                         headline: siteData.title,
@@ -251,10 +261,9 @@ function blazeArticleScrape() {
 
                     // console.log("formData", formData);
 
-                    // db.Article.create(formData).then(function (dbArticle) {
-                    //     console.log("dbArticle", dbArticle);
-                    // }).catch(err => console.log(err));
-
+                    db.Article.create(formData).then(function (dbArticle) {
+                        console.log("dbArticle", dbArticle);
+                    }).catch(err => console.log(err));
 
                 }
             })
@@ -262,13 +271,13 @@ function blazeArticleScrape() {
     })
 }
 
-
 const randomArticleScrape = function(){
 
     // let funcs = [nprArticleScrape, blazeArticleScrape, kosArticleScrape, foxArticleScrape];
     // funcs[Math.floor(Math.random() * funcs.length)]();
 
-    blazeArticleScrape();
+    // kosArticleScrape();
+    foxArticleScrape()
 
 }
 randomArticleScrape();
