@@ -18,18 +18,6 @@ module.exports = function (passport) {
             res.json(dbDiscussion);
         })
     });
-    //get user by user ID
-    router.get("/api/users/:userId", function (req, res) {
-        db.User.find({ _id: req.params.userId }).then(function (dbUser) {
-            res.json(dbUser);
-        })
-    });
-    //post new users
-    router.post("/api/users", function (req, res) {
-        db.User.create(req.body).then(function (dbUser) {
-            res.json(dbUser);
-        })
-    });
 
     //get articles previously read by user Id.
     router.get("/api/users/:userId/articles", function (req, res) {
@@ -149,6 +137,17 @@ module.exports = function (passport) {
     router.get("/api/logout", function(req, res) {
         req.logout();
         res.json({"success": true});
+    });
+
+    router.get("/api/user", function(req, res) {
+        if (req.user) {
+            let myUser = req.user;
+            myUser.password_hash = undefined;
+            myUser.password_salt = undefined;
+            res.json({"user": myUser});
+        } else {
+            res.json({"user": null});
+        }
     });
 
     /* Temp path for testing path protection */
