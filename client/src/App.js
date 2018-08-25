@@ -30,12 +30,9 @@ class App extends Component {
 
         {/* <Simple>
 
-
         </Simple> */}
 
-
         <PersistentDrawer>
-          
           {/* <Reactions></Reactions> */}
         </PersistentDrawer>
 
