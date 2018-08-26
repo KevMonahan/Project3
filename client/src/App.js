@@ -8,6 +8,7 @@ import Simple from "./pages/Simple.jsx";
 import Reactions from "./components/Reactions.jsx";
 // import Login from "./components/Login.js";
 import TextFields from "./components/TextFields.js";
+import SignIn from "./pages/SignIn.js";
 
 // const styles = {
 //    fontFamily: "Cardo",
@@ -26,6 +27,8 @@ class App extends Component {
       
       <div className="App">
 
+      {/* <SignIn /> */}
+
       {/* <TextFields></TextFields> */}
 
         {/* <Simple>
@@ -33,7 +36,7 @@ class App extends Component {
         </Simple> */}
 
         <PersistentDrawer>
-          {/* <Reactions></Reactions> */}
+          <Reactions></Reactions>
         </PersistentDrawer>
 
 
