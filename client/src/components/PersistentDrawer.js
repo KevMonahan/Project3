@@ -23,6 +23,7 @@ import Reactions from "./Reactions.jsx";
 import Article from "./Article.jsx";
 import "./drawer.css";
 
+import Input from "../components/Input.js";
 
 const drawerWidth = 300;
 
@@ -38,7 +39,6 @@ const styles = theme => ({
         display: 'flex',
         width: '100%',
     },
-
 
     menuButton: {
         marginLeft: 12,
@@ -91,27 +91,201 @@ class PersistentDrawer extends React.Component {
     constructor(props) {
         super(props);
 
+
+        fetch('/api/currentarticle')
+        .then(response => response.json())
+        .then(myJson => {
+            this.setState({ currentArticleId: myJson._id });
+            console.log("currentArticleId", myJson._id);
+            // console.log(this.state.currentArticleId)
+        })
+        .catch(err => console.log(err))
+
+
         this.state = {
             open: false,
             left: false,
             anchor: 'right',
-            article_id: []
+            article_id: [],
+
+            articleText: "",
+            currentArticleId: "",
+            regusername: "",
+            logusername: "",
+            regpssw: "",
+            logpssw: "",
+            conpssw: "",
+            email: "",
+            chat: "",
+            user: {},
+            error: "",
+            loggedIn: false
         };
     }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    handleInputChange = event => {
+        const { name, value } = event.target;
+        this.setState({
+            [name]: value
+        });
+    };
+
+    handleLogin = (event, username= false, password=false) => {
+        event.preventDefault();
+
+        // fetch('/api/currentarticle')
+        //     .then(response => response.json())
+        //     .then(myJson => {
+        //         this.setState({ currentArticleId: myJson._id });
+        //         console.log("currentArticleId", myJson._id);
+        //         // console.log(this.state.currentArticleId)
+        //     })
+        //     .catch(err => console.log(err))
+
+        let formData = {
+            "username": username || this.state.logusername,
+            "password": password || this.state.logpssw,
+        };
+
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        }).then((response) => {
+            return response.json();
+        }).then((myJSON) => {
+            console.log(JSON.stringify(myJSON));
+            if (myJSON.success) {
+                this.setState({ "user": myJSON.user, "loggedIn": true });
+            } else {
+
+            }
+        }).catch((reason) => {
+            this.setState({ "error": "Username or password incorrect!" });
+        });
+    };
+
+    handleRegister = event => {
+        event.preventDefault();
+
+        // fetch('/api/currentarticle')
+        //     .then(response => response.json())
+        //     .then(myJson => {
+        //         this.setState({ currentArticleId: myJson._id });
+        //         console.log("currentArticleId", myJson._id);
+        //         // console.log(this.state.currentArticleId)
+        //     })
+        //     .catch(err=> console.log(err))
+
+
+        if (this.state.regpssw !== this.state.conpssw) {
+            console.log("passwords must match");
+            return;
+        }
+
+        else {
+
+            let formData = {
+                "username": this.state.regusername,
+                "password": this.state.regpssw,
+                "email": this.state.email
+            };
+
+            console.log(formData);
+
+            fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            }).then((response) => {
+                return response.json();
+            }).then((myJSON) => {
+                console.log(JSON.stringify(myJSON))
+                if (!myJSON.error) {
+                    this.setState({ "user": myJSON.user, "loggedIn": true });
+                } else {
+                    this.setState({ "error": myJSON.error })
+                }
+
+            });
+        }
+    };
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     componentDidMount() {
-        this.loadReactions();
+        // this.loadReactions();
+
+        Promise.all([
+            fetch('/api/currentarticle').then(response => response.json()),
+            fetch('/api/user').then(response => response.json())
+        ]).then(data => {
+            // console.log(data[1].user);
+            if (data[1].user) {
+                this.setState({
+                    user: data[1],
+                    loggedIn: true,
+                    currentArticleId: data[0]._id
+                })
+            }
+        })
+    }
+
+    componentWillMount(){
+
+        // fetch('/api/currentarticle')
+        //     .then(response => response.json())
+        //     .then(myJson => {
+        //         this.setState({ currentArticleId: myJson._id });
+        //         console.log("currentArticleId", myJson._id);
+        //         // console.log(this.state.currentArticleId)
+        //     })
+        //     .catch(err => console.log(err))
+
     }
 
     loadReactions = () => {
-        fetch('/api/currentarticle')
-            .then(response => response.json())
-            .then(myJson => {
-                this.setState({ article_id: myJson._id });
-                console.log("myJson",myJson._id);
-                console.log(this.state.article_id)
-            });
+        // axios.get('https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty')
+            // .then(({ data }) => data.map(postId => `https://hacker-news.firebaseio.com/v0/item/${postId}.json?print=pretty`)) // transforms array of post ids to array of post urls
+            // .then(postsUrls => postsUrls.map(axios.get)) // transforms array of post urls to promises (we use axios to create an http request to each url and get a promise in return)
+            // .then(Promise.all.bind(Promise)) // we "merge" all those promises into one (this is a shorthand for .then(postsPromises => Promise.all(postsPromises))) and then get an array of posts data
+            // .then(postsData => postsData.map(({ data }) => data)) // we only take the actual data for the post (dropping headers and things like that)
+            // .then(posts => this.setState({ posts })); // and finally we call setState as we have a nice array of posts ready to use!
+
+        // let data = Promise.all([])
+        // fetch('/api/currentarticle')
+        //     .then(response => response.json())
+        //     .then(myJson => {
+        //         // this.setState({ currentArticleId: myJson._id });
+        //         updateArticleId = myJson._id;
+        //         console.log("myJson", myJson._id);
+        //         // console.log(this.state.currentArticleId)
+        //     })
+        //     .then(
+
+        // fetch('/api/user')
+        //     .then(response => response.json())
+        //     .then(myJson => {
+        //         // this.setState({ user: myJson });
+        //         if(myJson.user){
+        //         console.log("user", myJson);
+        //         this.setState({ "user": myJson, "loggedIn": true });
+        //         }
+        //         // console.log(this.state.user)
+        //     })
+        // );
+          
     }
 
     handleDrawerOpen = () => {
@@ -136,10 +310,111 @@ class PersistentDrawer extends React.Component {
         }
     };
 
-
     render() {
+
+        const loginPage = (
+        <nav className = "flexy">
+
+        <div className="half">
+        <form onSubmit={this.handleLogin}>
+
+            login - 
+                    
+            <label htmlFor="logusername">Username:</label>
+            <Input
+                title={"username:"}
+                value={this.state.username}
+                id={"logusername"}
+                name={"logusername"}
+                onChange={this.handleInputChange}
+                for={"login"}
+            />
+
+            <label htmlFor="logpssw">Password</label>
+            <Input
+                className={"input"}
+                title={"password:"}
+                value={this.state.password}
+                id={"logpssw"}
+                name={"logpssw"}
+                onChange={this.handleInputChange}
+                for={"login"}
+            />
+
+            <button
+                className={"input"}
+                onClick={this.handleFormSubmit}
+                type="submit"
+                id="run-search">
+                Search
+            </button>
+
+        </form>
+        </div>
+
+        <div className="half">
+        <form onSubmit={this.handleRegister}>
+
+            register -
+            <br></br>
+        <p>{this.state.error}</p>     
+        <label htmlFor="regusername">Username:</label>
+            <Input
+                className = {"input"}
+                // title={"username:"}
+                value={this.state.username}
+                id={"regusername"}
+                name={"regusername"}
+                onChange={this.handleInputChange}
+                for={"login"}
+            />
+        <label htmlFor="regpssw">Password</label>
+            <Input
+                className={"input"}
+                // title={"password:"}
+                value={this.state.password}
+                id={"regpssw"}
+                name={"regpssw"}
+                onChange={this.handleInputChange}
+                for={"login"}
+            />
+        <label htmlFor="conpssw">Confirm Password</label>
+            <Input
+                className={"input"}
+                // title={"confirm password:"}
+                value={this.state.conpassword}
+                id={"conpssw"}
+                name={"conpssw"}
+                onChange={this.handleInputChange}
+                for={"login"}
+            />
+        <label htmlFor="email">Email</label>
+            <Input
+                className={"input"}
+                // title={"confirm password:"}
+                value={this.state.email}
+                id={"email"}
+                name={"email"}
+                onChange={this.handleInputChange}
+                for={"login"}
+            />
+            <button
+                className={"input"}
+                // onClick={this.handleFormSubmit}
+                type="submit"
+                id="run-search">
+                Search
+            </button>
+            </form>
+
+        </div>
+
+        </nav>
+);
+
+
         const { classes } = this.props;
-        const { anchor, open } = this.state;
+        const { anchor, open, currentArticleId} = this.state;
 
         const drawer = (
             <Drawer
@@ -186,9 +461,6 @@ class PersistentDrawer extends React.Component {
                     </div>
 
 
-
-
-
                 </List>
                 <Divider />
                 <List>
@@ -226,7 +498,7 @@ class PersistentDrawer extends React.Component {
         );
 
 
-        return (
+        const home = (
             <div className={classes.root}>
 
                 <div className={classes.appFrame}>
@@ -270,8 +542,8 @@ class PersistentDrawer extends React.Component {
                         <MenuIcon style={{ position: "absolute", top: "50px", left: "20px" }} onClick={this.toggleDrawer()} />
                         {/* <Button onClick={this.toggleDrawer()}>Open Left</Button> */}
                         <div id="scrollDiv" style={{width: "100%", height: "100%", overflow: "scroll"}}>
-                            <Article article={this.state.article}/>
-                            <Reactions/>
+                            <Article article={currentArticleId}/>
+                            <Reactions article={currentArticleId}/>
                             {/* {this.props.children} */}
                         </div>
                     </main>
@@ -280,6 +552,12 @@ class PersistentDrawer extends React.Component {
                 </div>
             </div>
         );
+
+        if (this.state.loggedIn) {
+            return home;
+        } else {
+            return loginPage;
+        }
     }
 }
 
