@@ -527,7 +527,7 @@ class PersistentDrawer extends React.Component {
                             </ListItemIcon>
                             <ListItemText primary="Spam" />
                         </ListItem>
-                        
+
                         {/* </div> */}
                     </Drawer>
 
