@@ -28,7 +28,7 @@ class Simple extends Component {
     //we need to make the radio button that sets the users reaction level
 
     componentDidMount() {
-        this.loadReactions();
+        // this.loadReactions();
     }
 
     loadReactions = () => {
