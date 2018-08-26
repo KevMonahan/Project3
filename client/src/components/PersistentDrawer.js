@@ -22,6 +22,7 @@ import ReportIcon from '@material-ui/icons/Report';
 import Reactions from "./Reactions.jsx";
 import Article from "./Article.jsx";
 import "./drawer.css";
+import SignIn from "../pages/SignIn.js";
 
 import Input from "../components/Input.js";
 
@@ -119,7 +120,7 @@ class PersistentDrawer extends React.Component {
             chat: "",
             user: {},
             error: "",
-            loggedIn: false
+            loggedIn: true
         };
     }
 
@@ -133,92 +134,96 @@ class PersistentDrawer extends React.Component {
         });
     };
 
-    handleLogin = (event, username= false, password=false) => {
-        event.preventDefault();
+    handleUser = (userData) => {
+        this.setState({ "user": userData, "loggedIn": true });
+    }
 
-        // fetch('/api/currentarticle')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         this.setState({ currentArticleId: myJson._id });
-        //         console.log("currentArticleId", myJson._id);
-        //         // console.log(this.state.currentArticleId)
-        //     })
-        //     .catch(err => console.log(err))
+    // handleLogin = (event, username= false, password=false) => {
+    //     event.preventDefault();
 
-        let formData = {
-            "username": username || this.state.logusername,
-            "password": password || this.state.logpssw,
-        };
+    //     // fetch('/api/currentarticle')
+    //     //     .then(response => response.json())
+    //     //     .then(myJson => {
+    //     //         this.setState({ currentArticleId: myJson._id });
+    //     //         console.log("currentArticleId", myJson._id);
+    //     //         // console.log(this.state.currentArticleId)
+    //     //     })
+    //     //     .catch(err => console.log(err))
 
-        fetch('/api/login', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        }).then((response) => {
-            return response.json();
-        }).then((myJSON) => {
-            console.log(JSON.stringify(myJSON));
-            if (myJSON.success) {
-                this.setState({ "user": myJSON.user, "loggedIn": true });
-            } else {
+    //     let formData = {
+    //         "username": username || this.state.logusername,
+    //         "password": password || this.state.logpssw,
+    //     };
 
-            }
-        }).catch((reason) => {
-            this.setState({ "error": "Username or password incorrect!" });
-        });
-    };
+    //     fetch('/api/login', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Accept': 'application/json',
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(formData)
+    //     }).then((response) => {
+    //         return response.json();
+    //     }).then((myJSON) => {
+    //         console.log(JSON.stringify(myJSON));
+    //         if (myJSON.success) {
+    //             this.setState({ "user": myJSON.user, "loggedIn": true });
+    //         } else {
 
-    handleRegister = event => {
-        event.preventDefault();
+    //         }
+    //     }).catch((reason) => {
+    //         this.setState({ "error": "Username or password incorrect!" });
+    //     });
+    // };
 
-        // fetch('/api/currentarticle')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         this.setState({ currentArticleId: myJson._id });
-        //         console.log("currentArticleId", myJson._id);
-        //         // console.log(this.state.currentArticleId)
-        //     })
-        //     .catch(err=> console.log(err))
+    // handleRegister = (event, username = false, password = false, passwordTest=false, email=false) => {
+    //     event.preventDefault();
+    //     console.log(username, password, passwordTest, email);
 
+    //     // fetch('/api/currentarticle')
+    //     //     .then(response => response.json())
+    //     //     .then(myJson => {
+    //     //         this.setState({ currentArticleId: myJson._id });
+    //     //         console.log("currentArticleId", myJson._id);
+    //     //         // console.log(this.state.currentArticleId)
+    //     //     })
+    //     //     .catch(err=> console.log(err))
 
-        if (this.state.regpssw !== this.state.conpssw) {
-            console.log("passwords must match");
-            return;
-        }
+    //     if (password !== passwordTest) {
+    //         console.log("passwords must match");
+    //         return;
+    //     }
 
-        else {
+    //     else {
 
-            let formData = {
-                "username": this.state.regusername,
-                "password": this.state.regpssw,
-                "email": this.state.email
-            };
+    //         let formData = {
+    //             "username": username || this.state.regusername,
+    //             "password": password || this.state.regpssw,
+    //             "email": email || this.state.email
+    //         };
 
-            console.log(formData);
+    //         console.log(formData);
 
-            fetch('/api/register', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            }).then((response) => {
-                return response.json();
-            }).then((myJSON) => {
-                console.log(JSON.stringify(myJSON))
-                if (!myJSON.error) {
-                    this.setState({ "user": myJSON.user, "loggedIn": true });
-                } else {
-                    this.setState({ "error": myJSON.error })
-                }
+    //         fetch('/api/register', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify(formData)
+    //         }).then((response) => {
+    //             return response.json();
+    //         }).then((myJSON) => {
+    //             console.log(JSON.stringify(myJSON))
+    //             if (!myJSON.error) {
+    //                 this.setState({ "user": myJSON.user, "loggedIn": true });
+    //             } else {
+    //                 this.setState({ "error": myJSON.error })
+    //             }
 
-            });
-        }
-    };
+    //         });
+    //     }
+    // };
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -239,53 +244,16 @@ class PersistentDrawer extends React.Component {
                     currentArticleId: data[0]._id
                 })
             }
+            else{
+                this.setState({
+                    loggedIn: false,
+                })
+            }
         })
     }
 
-    componentWillMount(){
-
-        // fetch('/api/currentarticle')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         this.setState({ currentArticleId: myJson._id });
-        //         console.log("currentArticleId", myJson._id);
-        //         // console.log(this.state.currentArticleId)
-        //     })
-        //     .catch(err => console.log(err))
-
-    }
-
     loadReactions = () => {
-        // axios.get('https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty')
-            // .then(({ data }) => data.map(postId => `https://hacker-news.firebaseio.com/v0/item/${postId}.json?print=pretty`)) // transforms array of post ids to array of post urls
-            // .then(postsUrls => postsUrls.map(axios.get)) // transforms array of post urls to promises (we use axios to create an http request to each url and get a promise in return)
-            // .then(Promise.all.bind(Promise)) // we "merge" all those promises into one (this is a shorthand for .then(postsPromises => Promise.all(postsPromises))) and then get an array of posts data
-            // .then(postsData => postsData.map(({ data }) => data)) // we only take the actual data for the post (dropping headers and things like that)
-            // .then(posts => this.setState({ posts })); // and finally we call setState as we have a nice array of posts ready to use!
 
-        // let data = Promise.all([])
-        // fetch('/api/currentarticle')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         // this.setState({ currentArticleId: myJson._id });
-        //         updateArticleId = myJson._id;
-        //         console.log("myJson", myJson._id);
-        //         // console.log(this.state.currentArticleId)
-        //     })
-        //     .then(
-
-        // fetch('/api/user')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         // this.setState({ user: myJson });
-        //         if(myJson.user){
-        //         console.log("user", myJson);
-        //         this.setState({ "user": myJson, "loggedIn": true });
-        //         }
-        //         // console.log(this.state.user)
-        //     })
-        // );
-          
     }
 
     handleDrawerOpen = () => {
@@ -312,105 +280,105 @@ class PersistentDrawer extends React.Component {
 
     render() {
 
-        const loginPage = (
-        <nav className = "flexy">
+//         const loginPage = (
+//         <nav className = "flexy">
 
-        <div className="half">
-        <form onSubmit={this.handleLogin}>
+//         <div className="half">
+//         <form onSubmit={this.handleLogin}>
 
-            login - 
+//             login - 
                     
-            <label htmlFor="logusername">Username:</label>
-            <Input
-                title={"username:"}
-                value={this.state.username}
-                id={"logusername"}
-                name={"logusername"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
+//             <label htmlFor="logusername">Username:</label>
+//             <Input
+//                 title={"username:"}
+//                 value={this.state.username}
+//                 id={"logusername"}
+//                 name={"logusername"}
+//                 onChange={this.handleInputChange}
+//                 for={"login"}
+//             />
 
-            <label htmlFor="logpssw">Password</label>
-            <Input
-                className={"input"}
-                title={"password:"}
-                value={this.state.password}
-                id={"logpssw"}
-                name={"logpssw"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
+//             <label htmlFor="logpssw">Password</label>
+//             <Input
+//                 className={"input"}
+//                 title={"password:"}
+//                 value={this.state.password}
+//                 id={"logpssw"}
+//                 name={"logpssw"}
+//                 onChange={this.handleInputChange}
+//                 for={"login"}
+//             />
 
-            <button
-                className={"input"}
-                onClick={this.handleFormSubmit}
-                type="submit"
-                id="run-search">
-                Search
-            </button>
+//             <button
+//                 className={"input"}
+//                 onClick={this.handleFormSubmit}
+//                 type="submit"
+//                 id="run-search">
+//                 Search
+//             </button>
 
-        </form>
-        </div>
+//         </form>
+//         </div>
 
-        <div className="half">
-        <form onSubmit={this.handleRegister}>
+//         <div className="half">
+//         <form onSubmit={this.handleRegister}>
 
-            register -
-            <br></br>
-        <p>{this.state.error}</p>     
-        <label htmlFor="regusername">Username:</label>
-            <Input
-                className = {"input"}
-                // title={"username:"}
-                value={this.state.username}
-                id={"regusername"}
-                name={"regusername"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-        <label htmlFor="regpssw">Password</label>
-            <Input
-                className={"input"}
-                // title={"password:"}
-                value={this.state.password}
-                id={"regpssw"}
-                name={"regpssw"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-        <label htmlFor="conpssw">Confirm Password</label>
-            <Input
-                className={"input"}
-                // title={"confirm password:"}
-                value={this.state.conpassword}
-                id={"conpssw"}
-                name={"conpssw"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-        <label htmlFor="email">Email</label>
-            <Input
-                className={"input"}
-                // title={"confirm password:"}
-                value={this.state.email}
-                id={"email"}
-                name={"email"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-            <button
-                className={"input"}
-                // onClick={this.handleFormSubmit}
-                type="submit"
-                id="run-search">
-                Search
-            </button>
-            </form>
+//             register -
+//             <br></br>
+//         <p>{this.state.error}</p>     
+//         <label htmlFor="regusername">Username:</label>
+//             <Input
+//                 className = {"input"}
+//                 // title={"username:"}
+//                 value={this.state.username}
+//                 id={"regusername"}
+//                 name={"regusername"}
+//                 onChange={this.handleInputChange}
+//                 for={"login"}
+//             />
+//         <label htmlFor="regpssw">Password</label>
+//             <Input
+//                 className={"input"}
+//                 // title={"password:"}
+//                 value={this.state.password}
+//                 id={"regpssw"}
+//                 name={"regpssw"}
+//                 onChange={this.handleInputChange}
+//                 for={"login"}
+//             />
+//         <label htmlFor="conpssw">Confirm Password</label>
+//             <Input
+//                 className={"input"}
+//                 // title={"confirm password:"}
+//                 value={this.state.conpassword}
+//                 id={"conpssw"}
+//                 name={"conpssw"}
+//                 onChange={this.handleInputChange}
+//                 for={"login"}
+//             />
+//         <label htmlFor="email">Email</label>
+//             <Input
+//                 className={"input"}
+//                 // title={"confirm password:"}
+//                 value={this.state.email}
+//                 id={"email"}
+//                 name={"email"}
+//                 onChange={this.handleInputChange}
+//                 for={"login"}
+//             />
+//             <button
+//                 className={"input"}
+//                 // onClick={this.handleFormSubmit}
+//                 type="submit"
+//                 id="run-search">
+//                 Search
+//             </button>
+//             </form>
 
-        </div>
+//         </div>
 
-        </nav>
-);
+//         </nav>
+// );
 
 
         const { classes } = this.props;
@@ -553,12 +521,14 @@ class PersistentDrawer extends React.Component {
             </div>
         );
 
-        if (this.state.loggedIn) {
-            return home;
+        if (!this.state.loggedIn) {
+            // return <SignIn onLogin={this.handleLogin} onRegister={this.handleRegister}/>;
+            return <SignIn handleUser={this.handleUser} />;
         } else {
-            return loginPage;
+            return home;
         }
-    }
+    }         
+
 }
 
 PersistentDrawer.propTypes = {
