@@ -16,12 +16,21 @@ import DraftsIcon from '@material-ui/icons/Drafts';
 import StarIcon from '@material-ui/icons/Star';
 import SendIcon from '@material-ui/icons/Send';
 // import Button from '@material-ui/core/Button';
+import LogoutIcon from '@material-ui/icons/RemoveCircleOutline';
+
 import MailIcon from '@material-ui/icons/Mail';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ReportIcon from '@material-ui/icons/Report';
+import Reactions from "./Reactions.jsx";
+import Article from "./Article.jsx";
+import "./drawer.css";
+import SignIn from "../pages/SignIn.js";
 
+// import Input from "../components/Input.js";
 
 const drawerWidth = 300;
+
+
 
 const styles = theme => ({
     root: {
@@ -30,12 +39,11 @@ const styles = theme => ({
     appFrame: {
         height: "100vh",
         zIndex: 1,
-        // overflow: 'hidden',
+        overflow: 'hidden',
         position: 'relative',
         display: 'flex',
         width: '100%',
     },
-
 
     menuButton: {
         marginLeft: 12,
@@ -88,13 +96,87 @@ class PersistentDrawer extends React.Component {
     constructor(props) {
         super(props);
 
+
+        fetch('/api/currentarticle')
+        .then(response => response.json())
+        .then(myJson => {
+            this.setState({ currentArticleId: myJson._id });
+            console.log("currentArticleId", myJson._id);
+        })
+        .catch(err => console.log(err))
+
+
         this.state = {
             open: false,
             left: false,
             anchor: 'right',
+            article_id: [],
+
+            articleText: "",
+            currentArticleId: "",
+            regusername: "",
+            logusername: "",
+            regpssw: "",
+            logpssw: "",
+            conpssw: "",
+            email: "",
+            chat: "",
+            user: {},
+            error: "",
+            loggedIn: false,
+
         };
     }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    handleInputChange = event => {
+        const { name, value } = event.target;
+        this.setState({
+            [name]: value
+        });
+    };
+
+    handleUser = (userData) => {
+        this.setState({ "user": userData, "loggedIn": true });
+    }
+
+    handleLogout = () => {
+        fetch('/api/logout', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            this.setState({ "user": null, "loggedIn": false });
+        }).catch((error) => {
+            this.setState({ "user": null, "loggedIn": false });
+        });
+    }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    componentDidMount() {
+
+        Promise.all([
+            fetch('/api/currentarticle').then(response => response.json()),
+            fetch('/api/user').then(response => response.json())
+        ]).then(data => {
+            // console.log(data[1].user);
+            if (data[1].user) {
+                this.setState({
+                    user: data[1],
+                    loggedIn: true,
+                    currentArticleId: data[0]._id,
+                })
+            }
+            
+        })
+    }
 
     handleDrawerOpen = () => {
         if (!this.state.open) {
@@ -118,10 +200,10 @@ class PersistentDrawer extends React.Component {
         }
     };
 
-
     render() {
+
         const { classes } = this.props;
-        const { anchor, open } = this.state;
+        const { anchor, open, currentArticleId} = this.state;
 
         const drawer = (
             <Drawer
@@ -168,9 +250,6 @@ class PersistentDrawer extends React.Component {
                     </div>
 
 
-
-
-
                 </List>
                 <Divider />
                 <List>
@@ -208,17 +287,23 @@ class PersistentDrawer extends React.Component {
         );
 
 
-        return (
+        const home = (
             <div className={classes.root}>
 
                 <div className={classes.appFrame}>
 
                     <Drawer open={this.state.left} onClose={this.toggleDrawer()}>
-                        {/* <div
-                        tabIndex={0}
-                        role="button"
-                        // onClick={this.toggleDrawer()}
-                    > */}
+                       
+
+        {/* Logout Button */}
+                        <ListItem button onClick={this.handleLogout}>
+                            <ListItemIcon>
+                                <LogoutIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Log Out" />
+                        </ListItem>
+                        
+
                         <ListItem button>
                             <ListItemIcon>
                                 <MailIcon />
@@ -237,8 +322,7 @@ class PersistentDrawer extends React.Component {
                             </ListItemIcon>
                             <ListItemText primary="Spam" />
                         </ListItem>
-                        
-                        {/* </div> */}
+
                     </Drawer>
 
                     <main
@@ -250,15 +334,26 @@ class PersistentDrawer extends React.Component {
 
                         <MenuIcon style={{ position: "absolute", top: "50px", right: "20px" }} onClick={this.handleDrawerOpen} />
                         <MenuIcon style={{ position: "absolute", top: "50px", left: "20px" }} onClick={this.toggleDrawer()} />
-                        {/* <Button onClick={this.toggleDrawer()}>Open Left</Button> */}
-                        {this.props.children}
+                        <div id="scrollDiv" style={{width: "100%", height: "100%", overflow: "scroll"}}>
+                        
+                            <Article article={currentArticleId}/>
+                            {this.state.loggedIn ? <Reactions article={currentArticleId}/> : ""}
+                            {/* {this.props.children} */}
+
+                        </div>
                     </main>
 
                     {drawer}
                 </div>
             </div>
         );
-    }
+
+        if (!this.state.loggedIn) {
+            return <SignIn handleUser={this.handleUser} />;
+        } else {
+            return home;
+        }
+    }         
 }
 
 PersistentDrawer.propTypes = {
