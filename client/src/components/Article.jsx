@@ -12,11 +12,12 @@ const styles = {
     overflow: "scroll",
 };
 
+
 class Article extends React.Component {
     constructor(props) {
         super(props);
 
-        console.log(props);
+        // console.log(props);
 
         this.state = {
             userId: "",
@@ -42,22 +43,27 @@ class Article extends React.Component {
             .then(response => response.json())
             .then(myJson => {
                 this.setState({ response: myJson[0] });
-                console.log(myJson);
-                console.log(this.state.response)
+                // console.log(myJson);
+                // console.log(this.state.response.body)
             });
+
     }
 
-    render(){
 
+    render(){
+    
         return (
 
     <div style={styles}>
     <h1>{this.state.response.headline}</h1>
-    <p>{this.state.response.body}</p>
+    {/* {this.state.response.body} */}
+    <div style={{ whiteSpace: "pre-wrap" }}>{this.state.response.body}</div>
+
+    {/* {console.log(this.state.response.body)} */}
 </div>
+
         )
     }
-
 }
 
 Article.propTypes = {
