@@ -184,16 +184,16 @@ class SignIn extends React.Component {
                 if (!myJSON.error) {
                     this.props.handleUser(myJSON.user);
                     
-                    this.setState(
-                        { "user": myJSON.user,
-                         "loggedIn": true,
-                            regusername: "",
-                            logusername: "",
-                            regpssw: "",
-                            logpssw: "",
-                            conpssw: "",
-                            email: "", }
-                    );
+                    // this.setState(
+                    //     { "user": myJSON.user,
+                    //      "loggedIn": true,
+                    //         regusername: "",
+                    //         logusername: "",
+                    //         regpssw: "",
+                    //         logpssw: "",
+                    //         conpssw: "",
+                    //         email: "", }
+                    // );
 
                 } else {
                     this.setState({ "error": myJSON.error })

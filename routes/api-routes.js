@@ -12,6 +12,13 @@ module.exports = function (passport) {
         })
     });
 
+    router.get("/api/messages/:discussionId", ensureLoggedIn(), function (req, res) {
+        db.Discussion.find({ _id: req.params.discussionId}).then(function (dbDiscussion) {
+            res.json(dbDiscussion);
+        })
+    });
+
+
     //post chat using article ID ??? wont these 2 routes get viewed the same way?
     router.post("/api/discussion/", ensureLoggedIn(), function (req, res) {
         db.Discussion.create(req.body).then(function (dbDiscussion) {
