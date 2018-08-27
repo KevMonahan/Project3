@@ -105,8 +105,8 @@ module.exports = function (passport) {
         })
     });
 
-    router.put("/api/reactions/:reactionId", ensureLoggedIn(), function (req, res) {
-        db.Reaction.findOneAndUpdate({ _id: req.params.reactionId }, { $set: { wants_discussion: false } }, { new: true })
+    router.put("/api/reactions/:user1/:user2", function (req, res) {
+        db.Reaction.updateMany({$or: [ {_userId: req.params.user1} ,{_userId: req.params.user2}]}, { $set: { wants_discussion: false } }, { new: true })
             .then(function (dbReaction) {
                 res.json(dbReaction);
             })
