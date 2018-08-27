@@ -1,3 +1,18 @@
+/// Tomorrow to do.
+// Put request to update user articles when a reaction is submitted
+// Put request to update reaction wantsdiscussions to false when a discussion is created
+// Get current discussion based on userId and Article
+// Chat
+// Reaction Submit (if user has already reacted disable reaction form) 
+// (show comments/context)
+// hide title until reacted show title author website after reacted
+
+// Clean up code / styling
+// Previous Articles List and update components on selection
+// server scheduler for scrape (or manual scrape route)
+// deploy
+
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -15,17 +30,32 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import DraftsIcon from '@material-ui/icons/Drafts';
 import StarIcon from '@material-ui/icons/Star';
 import SendIcon from '@material-ui/icons/Send';
-// import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import LogoutIcon from '@material-ui/icons/RemoveCircleOutline';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+
+import QuestionAnswer from '@material-ui/icons/QuestionAnswer';
+
+
 import MailIcon from '@material-ui/icons/Mail';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ReportIcon from '@material-ui/icons/Report';
 import Reactions from "./Reactions.jsx";
 import Article from "./Article.jsx";
 import "./drawer.css";
+import SignIn from "../pages/SignIn.js";
 
-import Input from "../components/Input.js";
+import FormControl from '@material-ui/core/FormControl';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import Switch from '@material-ui/core/Switch';
+
+// import Input from "../components/Input.js";
 
 const drawerWidth = 300;
+
+
 
 const styles = theme => ({
     root: {
@@ -92,38 +122,102 @@ class PersistentDrawer extends React.Component {
         super(props);
 
 
+
         fetch('/api/currentarticle')
-        .then(response => response.json())
-        .then(myJson => {
-            this.setState({ currentArticleId: myJson._id });
-            console.log("currentArticleId", myJson._id);
-            // console.log(this.state.currentArticleId)
-        })
-        .catch(err => console.log(err))
+            .then(response => response.json())
+            .then(myJson => {
+                this.setState({ currentArticleId: myJson._id });
+                console.log("currentArticleId", myJson._id);
+            })
+            .catch(err => console.log(err))
 
 
         this.state = {
             open: false,
             left: false,
             anchor: 'right',
-            article_id: [],
 
+            article_id: [],
             articleText: "",
+
             currentArticleId: "",
+
             regusername: "",
             logusername: "",
             regpssw: "",
             logpssw: "",
             conpssw: "",
             email: "",
-            chat: "",
+
             user: {},
+            loggedIn: false,
+
+            message: "",
+            wantsDiscussion: true,
+            reactionLine: "",
+            reacted: false,
+            messagesArray: [],
+
+            forceUpdate: "value",
+
+            chatCreated: false,
+            chat: "",
+
+            discussionId: "",
+
             error: "",
-            loggedIn: false
+
+
         };
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    componentDidMount() {
+
+        Promise.all([
+            fetch('/api/currentarticle').then(response => response.json()),
+            fetch('/api/user').then(response => response.json())
+        ]).then(data => {
+            if (data[1].user) {
+                this.setState({
+                    user: data[1].user,
+                    loggedIn: true,
+                    currentArticleId: data[0]._id,
+                })
+            }
+            console.log("user", this.state.user)
+        })
+    }
+
+
+
+    handleLogout = () => {
+
+        fetch('/api/logout', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            this.setState({ "user": null, "loggedIn": false });
+        }).catch((error) => {
+            this.setState({ "user": null, "loggedIn": false });
+        });
+
+    }
+
+    handleChange = name => event => {
+        this.setState({
+            [name]: event.target.value,
+        });
+    };
+
+    handleToggle = name => event => {
+        this.setState({ [name]: event.target.checked });
+    };
 
 
     handleInputChange = event => {
@@ -133,24 +227,113 @@ class PersistentDrawer extends React.Component {
         });
     };
 
-    handleLogin = (event, username= false, password=false) => {
+    handleUser = (userData) => {
+        this.setState({ "user": userData, "loggedIn": true });
+    }
+
+    handleReaction = (event) => {
+
         event.preventDefault();
 
-        // fetch('/api/currentarticle')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         this.setState({ currentArticleId: myJson._id });
-        //         console.log("currentArticleId", myJson._id);
-        //         // console.log(this.state.currentArticleId)
-        //     })
-        //     .catch(err => console.log(err))
+        console.log(this.state.user._id)
+        console.log(this.state.currentArticleId)
 
-        let formData = {
-            "username": username || this.state.logusername,
-            "password": password || this.state.logpssw,
+        let articlesData = {
+            _id: this.state.user._id,
+            articles: this.state.currentArticleId
         };
 
-        fetch('/api/login', {
+        console.log(articlesData);
+
+        fetch('/api/users/' + this.state.user._id, {
+            method: 'Put',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(articlesData)
+        }).then((response) => {
+            return response.json();
+        }).then((myJSON) => {
+            console.log(myJSON);
+            if (myJSON) {
+
+                this.setState(
+                    {
+                        // user: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length - 1]]
+                        forceUpdate: Math.random(),
+                        reacted: true,
+                    }
+                );
+            } else {
+                this.setState(
+                    {
+                        message: "error"
+                    }
+                );
+            }
+        }).catch((reason) => {
+            this.setState({ "error": "Username or password incorrect!" });
+        });
+
+
+        let reactionData = {
+            _userId: this.state.user._id,
+            _articleId: this.state.currentArticleId,
+            wants_discussion: this.state.wantsDiscussion,
+            initial_opinion: this.state.reactionLine
+        };
+
+        console.log(reactionData);
+
+        fetch('/api/reactions', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(reactionData)
+        }).then((response) => {
+            return response.json();
+        }).then((myJSON) => {
+            console.log(myJSON);
+            if (myJSON) {
+
+                this.setState(
+                    {
+                        // user: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length - 1]]
+                    }
+                );
+            } else {
+                this.setState(
+                    {
+                        // message: "error"
+                    }
+                );
+            }
+        }).catch((reason) => {
+            this.setState({ "error": "Username or password incorrect!" });
+        });
+
+        
+    }
+
+    handleCreateChat = (value) => {
+        // this.setState({ "user": userData, "loggedIn": true });
+        console.log("value", value);
+
+        if(value){
+            // console.log(this.state.user._id)
+
+        let formData = {
+            _articleId: this.state.currentArticleId,
+            user_one: this.state.user._id,
+            user_two: value, 
+        };
+
+        console.log(formData);
+
+        fetch('/api/discussion', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -160,47 +343,47 @@ class PersistentDrawer extends React.Component {
         }).then((response) => {
             return response.json();
         }).then((myJSON) => {
-            console.log(JSON.stringify(myJSON));
-            if (myJSON.success) {
-                this.setState({ "user": myJSON.user, "loggedIn": true });
+            console.log("discussion response",myJSON);
+            if (myJSON) {
+
+                this.setState(
+                    {
+                        chatCreated: true,
+                        discussionId: myJSON._id
+                    }
+                );
+
             } else {
 
             }
         }).catch((reason) => {
             this.setState({ "error": "Username or password incorrect!" });
         });
-    };
+    }
+    else {
+        console.log("didn't work")
+    }
+        
+    }
 
-    handleRegister = event => {
+
+    handleMessage = event => {
+
         event.preventDefault();
 
-        // fetch('/api/currentarticle')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         this.setState({ currentArticleId: myJson._id });
-        //         console.log("currentArticleId", myJson._id);
-        //         // console.log(this.state.currentArticleId)
-        //     })
-        //     .catch(err=> console.log(err))
+            console.log(this.state.user._id)
+            // console.log(event)
 
-
-        if (this.state.regpssw !== this.state.conpssw) {
-            console.log("passwords must match");
-            return;
-        }
-
-        else {
-
+            // console.log(this.state)
             let formData = {
-                "username": this.state.regusername,
-                "password": this.state.regpssw,
-                "email": this.state.email
+                _id: this.state.discussionId,
+                messages: this.state.message
             };
 
             console.log(formData);
 
-            fetch('/api/register', {
-                method: 'POST',
+            fetch('/api/discussion/' + this.state.discussionId, {
+                method: 'Put',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -209,84 +392,33 @@ class PersistentDrawer extends React.Component {
             }).then((response) => {
                 return response.json();
             }).then((myJSON) => {
-                console.log(JSON.stringify(myJSON))
-                if (!myJSON.error) {
-                    this.setState({ "user": myJSON.user, "loggedIn": true });
+                console.log(myJSON);
+                if (myJSON) {
+
+                    this.setState(
+                        {
+                            message: "",
+                            messagesArray: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length-1]] 
+                        }
+                    );
+                    console.log(this.state.messagesArray)
                 } else {
-                    this.setState({ "error": myJSON.error })
+                    this.setState(
+                        {
+                            message: "error"
+                        }
+                    );
                 }
-
+            }).catch((reason) => {
+                this.setState({ "error": "Username or password incorrect!" });
             });
-        }
-    };
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    componentDidMount() {
-        // this.loadReactions();
-
-        Promise.all([
-            fetch('/api/currentarticle').then(response => response.json()),
-            fetch('/api/user').then(response => response.json())
-        ]).then(data => {
-            // console.log(data[1].user);
-            if (data[1].user) {
-                this.setState({
-                    user: data[1],
-                    loggedIn: true,
-                    currentArticleId: data[0]._id
-                })
-            }
-        })
+        
     }
 
-    componentWillMount(){
 
-        // fetch('/api/currentarticle')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         this.setState({ currentArticleId: myJson._id });
-        //         console.log("currentArticleId", myJson._id);
-        //         // console.log(this.state.currentArticleId)
-        //     })
-        //     .catch(err => console.log(err))
 
-    }
+////Drawer Methods/////////////////////////////////////////////////////////////////////////////////////
 
-    loadReactions = () => {
-        // axios.get('https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty')
-            // .then(({ data }) => data.map(postId => `https://hacker-news.firebaseio.com/v0/item/${postId}.json?print=pretty`)) // transforms array of post ids to array of post urls
-            // .then(postsUrls => postsUrls.map(axios.get)) // transforms array of post urls to promises (we use axios to create an http request to each url and get a promise in return)
-            // .then(Promise.all.bind(Promise)) // we "merge" all those promises into one (this is a shorthand for .then(postsPromises => Promise.all(postsPromises))) and then get an array of posts data
-            // .then(postsData => postsData.map(({ data }) => data)) // we only take the actual data for the post (dropping headers and things like that)
-            // .then(posts => this.setState({ posts })); // and finally we call setState as we have a nice array of posts ready to use!
-
-        // let data = Promise.all([])
-        // fetch('/api/currentarticle')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         // this.setState({ currentArticleId: myJson._id });
-        //         updateArticleId = myJson._id;
-        //         console.log("myJson", myJson._id);
-        //         // console.log(this.state.currentArticleId)
-        //     })
-        //     .then(
-
-        // fetch('/api/user')
-        //     .then(response => response.json())
-        //     .then(myJson => {
-        //         // this.setState({ user: myJson });
-        //         if(myJson.user){
-        //         console.log("user", myJson);
-        //         this.setState({ "user": myJson, "loggedIn": true });
-        //         }
-        //         // console.log(this.state.user)
-        //     })
-        // );
-          
-    }
 
     handleDrawerOpen = () => {
         if (!this.state.open) {
@@ -310,108 +442,9 @@ class PersistentDrawer extends React.Component {
         }
     };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
     render() {
-
-        const loginPage = (
-        <nav className = "flexy">
-
-        <div className="half">
-        <form onSubmit={this.handleLogin}>
-
-            login - 
-                    
-            <label htmlFor="logusername">Username:</label>
-            <Input
-                title={"username:"}
-                value={this.state.username}
-                id={"logusername"}
-                name={"logusername"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-
-            <label htmlFor="logpssw">Password</label>
-            <Input
-                className={"input"}
-                title={"password:"}
-                value={this.state.password}
-                id={"logpssw"}
-                name={"logpssw"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-
-            <button
-                className={"input"}
-                onClick={this.handleFormSubmit}
-                type="submit"
-                id="run-search">
-                Search
-            </button>
-
-        </form>
-        </div>
-
-        <div className="half">
-        <form onSubmit={this.handleRegister}>
-
-            register -
-            <br></br>
-        <p>{this.state.error}</p>     
-        <label htmlFor="regusername">Username:</label>
-            <Input
-                className = {"input"}
-                // title={"username:"}
-                value={this.state.username}
-                id={"regusername"}
-                name={"regusername"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-        <label htmlFor="regpssw">Password</label>
-            <Input
-                className={"input"}
-                // title={"password:"}
-                value={this.state.password}
-                id={"regpssw"}
-                name={"regpssw"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-        <label htmlFor="conpssw">Confirm Password</label>
-            <Input
-                className={"input"}
-                // title={"confirm password:"}
-                value={this.state.conpassword}
-                id={"conpssw"}
-                name={"conpssw"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-        <label htmlFor="email">Email</label>
-            <Input
-                className={"input"}
-                // title={"confirm password:"}
-                value={this.state.email}
-                id={"email"}
-                name={"email"}
-                onChange={this.handleInputChange}
-                for={"login"}
-            />
-            <button
-                className={"input"}
-                // onClick={this.handleFormSubmit}
-                type="submit"
-                id="run-search">
-                Search
-            </button>
-            </form>
-
-        </div>
-
-        </nav>
-);
-
 
         const { classes } = this.props;
         const { anchor, open, currentArticleId} = this.state;
@@ -431,69 +464,69 @@ class PersistentDrawer extends React.Component {
                     </IconButton>
                 </div>
                 <Divider />
-                <List>
-
-                    <div>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <InboxIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Inbox" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <StarIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Starred" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <SendIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Send mail" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <DraftsIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Drafts" />
-                        </ListItem>
-                    </div>
 
 
-                </List>
+                {/* Chat Message Div */}
+                <div id={"container"} style={{height: "80%"}}>
+
+                
+
+                    {/* {this.messagesArray.map((message) => {<ListItem>{message}</ListItem>})} */}
+
+
+                    {this.state.messagesArray.map((value,index) => (
+                        <ListItem
+                            key={index}
+                            role={undefined}
+                            // dense
+                            button
+                        >
+
+                            <ListItemText primary={`${value}`} /></ListItem>
+                    ))}
+
+
+                </div>
+                
                 <Divider />
-                <List>
 
 
                     <div>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <InboxIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Inbox" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <StarIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Starred" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <SendIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Send mail" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <DraftsIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Drafts" />
-                        </ListItem>
+                    {/* Chat send message */}
+                        
+                    <form className={classes.form} onSubmit={this.handleMessage}>
+                          
+
+                            <FormControl margin="normal" required fullWidth>
+                            <TextField
+                                id="multiline-flexible"
+                                label="Message"
+                                multiline
+                                rowsMax="4"
+                                value={this.state.message}
+                                onChange={this.handleChange('message')}
+                                // className={classes.textField}
+                                margin="normal"
+                            />
+                            </FormControl>
+
+                            <Button
+                                type="submit"
+                                fullWidth
+                                color="primary"
+                                label="submit"
+                                className={classes.submit}
+                                
+                            >
+                                Send Message
+                               
+                        </Button>
+                        </form>
+
+
+
                     </div>
 
-                </List>
             </Drawer>
         );
 
@@ -504,31 +537,29 @@ class PersistentDrawer extends React.Component {
                 <div className={classes.appFrame}>
 
                     <Drawer open={this.state.left} onClose={this.toggleDrawer()}>
-                        {/* <div
-                        tabIndex={0}
-                        role="button"
-                        // onClick={this.toggleDrawer()}
-                    > */}
-                        <ListItem button>
+                       
+
+            {/* Logout Button */}
+                        <ListItem button onClick={this.handleLogout}>
+                            <ListItemIcon>
+                                <LogoutIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Log Out" />
+                        </ListItem>
+                        
+            {/* All mail button to test sending a message */}
+                        {/* <ListItem button onClick={this.handleMessage}>
                             <ListItemIcon>
                                 <MailIcon />
                             </ListItemIcon>
                             <ListItemText primary="All mail" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <DeleteIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Trash" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <ReportIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Spam" />
-                        </ListItem>
+                        </ListItem> */}
 
-                        {/* </div> */}
+                    
+            {/* Map of past articles should go here */}
+
+                    
+
                     </Drawer>
 
                     <main
@@ -538,27 +569,78 @@ class PersistentDrawer extends React.Component {
                         })}
                     >
 
-                        <MenuIcon style={{ position: "absolute", top: "50px", right: "20px" }} onClick={this.handleDrawerOpen} />
+                        <QuestionAnswer style={{ position: "absolute", top: "50px", right: "20px" }} onClick={this.handleDrawerOpen} />
                         <MenuIcon style={{ position: "absolute", top: "50px", left: "20px" }} onClick={this.toggleDrawer()} />
-                        {/* <Button onClick={this.toggleDrawer()}>Open Left</Button> */}
                         <div id="scrollDiv" style={{width: "100%", height: "100%", overflow: "scroll"}}>
+                        
+
+            {/* The article */}
                             <Article article={currentArticleId}/>
-                            <Reactions article={currentArticleId}/>
+
+            {/* Reactions */}
+                            {this.state.reacted ? <Reactions key={this.state.forceUpdate} handleUser={this.handleCreateChat} articleId={currentArticleId} /> : ""}
+                            
+                            
+            {/* Post a reaction form */}
+                            <form
+                             className={classes.form}
+                             onSubmit={this.handleReaction}
+                              style={{maxWidth: 800, marginRight: "auto",marginLeft: "auto" }}>
+
+
+                                <FormControl margin="normal" required fullWidth>
+                                    <TextField
+                                        id="multiline-flexible"
+                                        label="Reaction"
+                                        multiline
+                                        rowsMax="4"
+                                        value={this.state.reactionLine}
+                                        onChange={this.handleChange('reactionLine')}
+                                        // className={classes.textField}
+                                        margin="normal"
+                                    />
+                                </FormControl>
+
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={this.state.wantsDiscussion}
+                                            onChange={this.handleToggle('wantsDiscussion')}
+                                            value="wantsDiscussion"
+                                            color="primary"
+                                        />
+                                    }
+                                    label="Open for discussion?"
+                                />
+
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    color="primary"
+                                    className={classes.submit}
+                                >
+                                    Post Reaction
+                                </Button>
+                            </form>
                             {/* {this.props.children} */}
+
                         </div>
                     </main>
-
+               
+    
                     {drawer}
                 </div>
             </div>
         );
 
-        if (this.state.loggedIn) {
-            return home;
+
+        // Sign In conditional
+        if (!this.state.loggedIn) {
+            return <SignIn handleUser={this.handleUser} />;
         } else {
-            return loginPage;
+            return home;
         }
-    }
+    }         
 }
 
 PersistentDrawer.propTypes = {

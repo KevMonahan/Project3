@@ -10,6 +10,8 @@ import Reactions from "./components/Reactions.jsx";
 import TextFields from "./components/TextFields.js";
 import ReactionForm from "./components/ReactionForm.js";
 
+import SignIn from "./pages/SignIn.js";
+
 
 // const styles = {
 //    fontFamily: "Cardo",
@@ -28,6 +30,8 @@ class App extends Component {
       
       <div className="App">
 
+      {/* <SignIn /> */}
+
       {/* <TextFields></TextFields> */}
 
         {/* <Simple>
@@ -35,7 +39,7 @@ class App extends Component {
         </Simple> */}
 
         <PersistentDrawer> 
-          <Reactions></Reactions> 
+          {/* <Reactions></Reactions>  */}
         
         </PersistentDrawer>
 

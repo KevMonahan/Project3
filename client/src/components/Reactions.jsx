@@ -11,11 +11,12 @@ import CommentIcon from '@material-ui/icons/Comment';
 const styles = theme => ({
     root: {
         width: '100%',
-        maxWidth: 640,
+        maxWidth: 800,
         backgroundColor: theme.palette.background.paper,
         marginLeft: "auto",
         marginRight: "auto",
-        marginBottom: "50px"
+        marginBottom: "50px",
+        marginTop: "50px"
     },
 });
 
@@ -25,25 +26,35 @@ class Reactions extends React.Component {
         super(props);
 
         this.state = {
-            userId:"",
+            userId:this.props.userId,
             reaction: "",
-            article_id: "5b7f6e6fc72c920210a4acdd",
+            article_id: this.props.articleId,
             reactions: [],
         };
+        console.log(this.props);
     }
 
+    shouldComponentUpdate(nextProps) {
+        return nextProps.articleId == this.props.articleId;
+    }
+    
     componentDidMount() {
         this.loadReactions();
     }
 
     loadReactions = () => {
-        fetch('/api/reactions/' + this.state.article_id)
+        fetch('/api/reactions/' + this.props.articleId)
             .then(response => response.json())
             .then(myJson => {
                 this.setState({ reactions: myJson });
-                console.log(myJson);
-                console.log(this.state.reactions)
+                // console.log(myJson);
+                // console.log(this.state.reactions)
             });
+    }
+
+    handleInteraction = (e) => {
+        this.props.handleUser(e.target.id);
+        // console.log("test")
     }
     
         render(){
@@ -56,25 +67,31 @@ class Reactions extends React.Component {
                             <ListItem
                                 key={value._id}
                                 role={undefined}
-                                dense
+                                // dense
                                 button
-                                className={classes.listItem}
+                                
                             >
                                 
                                 <ListItemText primary={`${value.initial_opinion}`} />
-                                <ListItemSecondaryAction>
-                                    {value.wants_discussion ? 
-                                    <IconButton aria-label="Comments">
-                                        <CommentIcon />
-                                    </IconButton> : "" }
-                                </ListItemSecondaryAction>
+                                {value.wants_discussion ? 
+                                <ListItemSecondaryAction >
+                                    
+                                        <IconButton aria-label="Comments"
+                                            style={{display: "block", backgroundColor: "blue"}}
+                                            className={classes.listItem}
+                                            onClick={this.handleInteraction}
+                                            id={value._id}
+                                            test={"test"}>
+
+                                            {/* <CommentIcon/> */}
+                                        </IconButton> 
+                                </ListItemSecondaryAction>: "" }
                             </ListItem>
                         ))}
                     </List>
                 </div>
             );
-        }
-    
+        } 
 }
 
 Reactions.propTypes = {

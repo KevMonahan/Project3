@@ -19,14 +19,19 @@ module.exports = function (passport) {
         })
     });
 
-    router.put("/api/discussion/:discussionId", ensureLoggedIn(), function(req, res) {
+    //put route to add a message to specific discussion
+    // router.put("/api/discussion/:discussionId", ensureLoggedIn(), function (req, res) {
+    //     db.Discussion.findOneAndUpdate({ _id: req.params.discussionId }, { $set: req.body }, { new: true }).then(function (dbDiscussion) {
+    //         res.json(dbDiscussion);
+    //     })
+    // })
+    router.put("/api/discussion/:discussionId", ensureLoggedIn(), function (req, res) {
         var newMessage = req.body.messages;
-        
-        db.Discussion.findOneAndUpdate({ _id: req.params.discussionId}, {$push:{messages: newMessage}}, {new: true}).then(function(dbDiscussion) {
+
+        db.Discussion.findOneAndUpdate({ _id: req.params.discussionId }, { $push: { messages: newMessage } }, { new: true }).then(function (dbDiscussion) {
             res.json(dbDiscussion);
         })
     })
-
     //get articles previously read by user Id.
     router.get("/api/users/:userId/articles", ensureLoggedIn(), function (req, res) {
         db.User.find({ _id: req.params.userId }).then(function (dbArticle) {
@@ -41,11 +46,19 @@ module.exports = function (passport) {
     });
 
     //update user info
+    // router.put("/api/users/:userId", ensureLoggedIn(), function (req, res) {
+    //     db.User.findOneAndUpdate({ _id: req.params.userId }, { $set: req.body }, { new: true }).then(function (dbUser) {
+    //         res.json(dbUser);
+    //     })
+    // });
     router.put("/api/users/:userId", ensureLoggedIn(), function (req, res) {
-        db.User.findOneAndUpdate({ _id: req.params.userId }, { $set: req.body }, { new: true }).then(function (dbUser) {
+        const updateArticles = req.body.articles
+
+        db.User.findOneAndUpdate({ _id: req.params.userId }, { $push: { articles: updateArticles} }, { new: true }).then(function (dbUser) {
             res.json(dbUser);
         })
     });
+   
     //get all articles
     router.get("/api/articles", ensureLoggedIn(), function (req, res) {
         db.Article.find(req.query).then(function (dbArticle) {
@@ -82,12 +95,19 @@ module.exports = function (passport) {
         })
     });
     //post new reactions
+    // req.query didnt for some reason???
     router.post("/api/reactions", ensureLoggedIn(), function (req, res) {
-        db.Reaction.create(req.query).then(function (dbReaction) {
+        console.log(req.body)
+        console.log(req.query)
+        db.Reaction.create(req.body).then(function (dbReaction) {
             res.json(dbReaction);
         })
     });
-
+    // router.post("/api/reactions", function (req, res) {
+    //     db.Reaction.create(req.query).then(function (dbReaction) {
+    //         res.json(dbReaction);
+    //     })
+    // });
     // ========================================================================
     // START: Passport routes 
     // Used for login, registration, logout, checking if logged in on refresh
@@ -106,22 +126,45 @@ module.exports = function (passport) {
     });
 
     router.post("/api/register", function (req, res) {
-        console.log("in /register");
-        console.log(req.body);
-        db.User.findOne({ username: req.body.username.toLowerCase() }, function (err, dbUser) {
+        const reUsername = new RegExp("^[a-zA-Z0-9]*$/"); //   ^[a-zA-Z0-9]*$
+        const rePassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+
+        let username = req.body.username;
+        let password = req.body.password;
+        let errorMessage = "";
+
+        if (!username || username.length < 5) {
+            errorMessage += "Username must be at least 5 characters long.  ";
+        } 
+        // else if (!reUsername.test(username)) {
+        //     errorMessage += "Username must be only letters and numbers.  ";
+        // }
+
+        if (!password || password.length < 8) {
+            errorMessage += "Password must be at least 8 characters long.  ";
+        } else if (!rePassword.test(password)) {
+            errorMessage += "Password must contain a lowercase letter, uppercase letter, number, and special character (like !@#$%^&*).";
+        }
+
+        if (errorMessage) {
+            return res.json({"success": false, "error": errorMessage});
+        }
+
+        username = username.toLowerCase();
+        db.User.findOne({ username: username }, function (err, dbUser) {
 
             if (err) {
                 console.log(err);
             }
             if (dbUser) {
-                res.json({ "success": false, "error": "Username already taken, pick another" });
+                res.json({ "success": false, "error": "Username already taken, pick another." });
             } else {
                 const newUser = {};
-                newUser["username"] = req.body.username.toLowerCase();
+                newUser["username"] = username;
                 newUser["email"] = req.body.email;
                 newUser["password_salt"] = crypto.randomBytes(132).toString('hex').slice(0, 132);
                 let hash = crypto.createHmac("sha512", newUser["password_salt"]);
-                hash.update(req.body.password);
+                hash.update(password);
                 newUser["password_hash"] = hash.digest("hex");
                 db.User.create(newUser, function (errorOnCreation, createdUser) {
                     if (errorOnCreation) {
