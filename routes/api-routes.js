@@ -106,10 +106,21 @@ module.exports = function (passport) {
     });
 
     router.put("/api/reactions/:user1/:user2", function (req, res) {
-        db.Reaction.updateMany({$or: [ {_userId: req.params.user1} ,{_userId: req.params.user2}]}, { $set: { wants_discussion: false } }, { new: true })
+        db.Reaction.updateMany({ $or: [{ _userId: req.params.user1 }, { _userId: req.params.user2 }] }, { $set: { wants_discussion: false } }, { new: true })
             .then(function (dbReaction) {
                 res.json(dbReaction);
             })
+    })
+
+    router.get("/api/discussion/:articleId/:userId", function (req, res) {
+        db.Discussion.findOne({
+            $and: [
+                { _articleId: req.params.articleId },
+                { $or: [{ user_one: req.params.userId }, { user_two: req.params.userId }] }
+            ]
+        }).then(function (dbDiscussion) {
+            res.json(dbDiscussion);
+        })
     })
     // router.post("/api/reactions", function (req, res) {
     //     db.Reaction.create(req.query).then(function (dbReaction) {
