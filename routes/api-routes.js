@@ -19,6 +19,14 @@ module.exports = function (passport) {
         })
     });
 
+    router.put("/api/discussion/:discussionId", ensureLoggedIn(), function(req, res) {
+        var newMessage = req.body.messages;
+        
+        db.Discussion.findOneAndUpdate({ _id: req.params.discussionId}, {$push:{messages: newMessage}}, {new: true}).then(function(dbDiscussion) {
+            res.json(dbDiscussion);
+        })
+    })
+
     //get articles previously read by user Id.
     router.get("/api/users/:userId/articles", ensureLoggedIn(), function (req, res) {
         db.User.find({ _id: req.params.userId }).then(function (dbArticle) {
