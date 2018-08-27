@@ -35,7 +35,7 @@ class Reactions extends React.Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        return nextProps.articleId == this.props.articleId;
+        return nextProps.articleId === this.props.articleId;
     }
     
     componentDidMount() {
@@ -72,8 +72,11 @@ class Reactions extends React.Component {
                                 
                             >
                                 
+                                {/* {console.log(this.props.inDiscussion)} */}
                                 <ListItemText primary={`${value.initial_opinion}`} />
-                                {value.wants_discussion ? 
+                                {/* {value.wants_discussion ?  */}
+                                {value.wants_discussion && !this.props.inDiscussion ? 
+
                                 <ListItemSecondaryAction >
                                     
                                         <IconButton aria-label="Comments"
@@ -85,7 +88,7 @@ class Reactions extends React.Component {
 
                                             {/* <CommentIcon/> */}
                                         </IconButton> 
-                                </ListItemSecondaryAction>: "" }
+                                </ListItemSecondaryAction> : "" }
                             </ListItem>
                         ))}
                     </List>
