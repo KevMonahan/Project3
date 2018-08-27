@@ -19,6 +19,19 @@ module.exports = function (passport) {
         })
     });
 
+    //put route to add a message to specific discussion
+    // router.put("/api/discussion/:discussionId", ensureLoggedIn(), function (req, res) {
+    //     db.Discussion.findOneAndUpdate({ _id: req.params.discussionId }, { $set: req.body }, { new: true }).then(function (dbDiscussion) {
+    //         res.json(dbDiscussion);
+    //     })
+    // })
+    router.put("/api/discussion/:discussionId", ensureLoggedIn(), function (req, res) {
+        var newMessage = req.body.messages;
+
+        db.Discussion.findOneAndUpdate({ _id: req.params.discussionId }, { $push: { messages: newMessage } }, { new: true }).then(function (dbDiscussion) {
+            res.json(dbDiscussion);
+        })
+    })
     //get articles previously read by user Id.
     router.get("/api/users/:userId/articles", ensureLoggedIn(), function (req, res) {
         db.User.find({ _id: req.params.userId }).then(function (dbArticle) {
@@ -33,11 +46,19 @@ module.exports = function (passport) {
     });
 
     //update user info
+    // router.put("/api/users/:userId", ensureLoggedIn(), function (req, res) {
+    //     db.User.findOneAndUpdate({ _id: req.params.userId }, { $set: req.body }, { new: true }).then(function (dbUser) {
+    //         res.json(dbUser);
+    //     })
+    // });
     router.put("/api/users/:userId", ensureLoggedIn(), function (req, res) {
-        db.User.findOneAndUpdate({ _id: req.params.userId }, { $set: req.body }, { new: true }).then(function (dbUser) {
+        const updateArticles = req.body.articles
+
+        db.User.findOneAndUpdate({ _id: req.params.userId }, { $push: { articles: updateArticles} }, { new: true }).then(function (dbUser) {
             res.json(dbUser);
         })
     });
+   
     //get all articles
     router.get("/api/articles", ensureLoggedIn(), function (req, res) {
         db.Article.find(req.query).then(function (dbArticle) {
@@ -74,12 +95,19 @@ module.exports = function (passport) {
         })
     });
     //post new reactions
+    // req.query didnt for some reason???
     router.post("/api/reactions", ensureLoggedIn(), function (req, res) {
-        db.Reaction.create(req.query).then(function (dbReaction) {
+        console.log(req.body)
+        console.log(req.query)
+        db.Reaction.create(req.body).then(function (dbReaction) {
             res.json(dbReaction);
         })
     });
-
+    // router.post("/api/reactions", function (req, res) {
+    //     db.Reaction.create(req.query).then(function (dbReaction) {
+    //         res.json(dbReaction);
+    //     })
+    // });
     // ========================================================================
     // START: Passport routes 
     // Used for login, registration, logout, checking if logged in on refresh

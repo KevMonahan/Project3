@@ -54,7 +54,7 @@ class SignIn extends React.Component {
         constructor(props) {
             super(props);
 
-            console.log(props);
+            // console.log(props);
 
             this.state = {
 
@@ -121,21 +121,22 @@ class SignIn extends React.Component {
         }).then((response) => {
             return response.json();
         }).then((myJSON) => {
-            console.log(JSON.stringify(myJSON));
+            console.log(myJSON);
             if (myJSON.success) {
                 this.props.handleUser(myJSON.user);
 
-                this.setState(
-                    { "user": myJSON.user,
-                     "loggedIn": true,
-                        regusername: "",
-                        logusername: "",
-                        regpssw: "",
-                        logpssw: "",
-                        conpssw: "",
-                        email: "",
-                     }
-                );
+                // this.setState(
+                //     { "user": myJSON.user,
+                //      "loggedIn": true,
+                //         regusername: "",
+                //         logusername: "",
+                //         regpssw: "",
+                //         logpssw: "",
+                //         conpssw: "",
+                //         email: "",
+                //      }
+                // );
+
             } else {
 
             }
@@ -193,6 +194,7 @@ class SignIn extends React.Component {
                             conpssw: "",
                             email: "", }
                     );
+
                 } else {
                     this.setState({ "error": myJSON.error })
                 }
@@ -250,6 +252,7 @@ class SignIn extends React.Component {
                             variant="raised"
                             color="primary"
                             className={classes.submit}
+                            
                         >
                             Sign in
                         </Button>

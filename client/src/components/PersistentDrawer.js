@@ -1,3 +1,18 @@
+/// Tomorrow to do.
+// Put request to update user articles when a reaction is submitted
+// Put request to update reaction wantsdiscussions to false when a discussion is created
+// Get current discussion based on userId and Article
+// Chat
+// Reaction Submit (if user has already reacted disable reaction form) 
+// (show comments/context)
+// hide title until reacted show title author website after reacted
+
+// Clean up code / styling
+// Previous Articles List and update components on selection
+// server scheduler for scrape (or manual scrape route)
+// deploy
+
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -15,8 +30,13 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import DraftsIcon from '@material-ui/icons/Drafts';
 import StarIcon from '@material-ui/icons/Star';
 import SendIcon from '@material-ui/icons/Send';
-// import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 import LogoutIcon from '@material-ui/icons/RemoveCircleOutline';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+
+import QuestionAnswer from '@material-ui/icons/QuestionAnswer';
+
 
 import MailIcon from '@material-ui/icons/Mail';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -25,6 +45,11 @@ import Reactions from "./Reactions.jsx";
 import Article from "./Article.jsx";
 import "./drawer.css";
 import SignIn from "../pages/SignIn.js";
+
+import FormControl from '@material-ui/core/FormControl';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import Switch from '@material-ui/core/Switch';
 
 // import Input from "../components/Input.js";
 
@@ -97,38 +122,102 @@ class PersistentDrawer extends React.Component {
         super(props);
 
 
+
         fetch('/api/currentarticle')
-        .then(response => response.json())
-        .then(myJson => {
-            this.setState({ currentArticleId: myJson._id });
-            console.log("currentArticleId", myJson._id);
-        })
-        .catch(err => console.log(err))
+            .then(response => response.json())
+            .then(myJson => {
+                this.setState({ currentArticleId: myJson._id });
+                console.log("currentArticleId", myJson._id);
+            })
+            .catch(err => console.log(err))
 
 
         this.state = {
             open: false,
             left: false,
             anchor: 'right',
-            article_id: [],
 
+            article_id: [],
             articleText: "",
+
             currentArticleId: "",
+
             regusername: "",
             logusername: "",
             regpssw: "",
             logpssw: "",
             conpssw: "",
             email: "",
-            chat: "",
+
             user: {},
-            error: "",
             loggedIn: false,
+
+            message: "",
+            wantsDiscussion: true,
+            reactionLine: "",
+            reacted: false,
+            messagesArray: [],
+
+            forceUpdate: "value",
+
+            chatCreated: false,
+            chat: "",
+
+            discussionId: "",
+
+            error: "",
+
 
         };
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    componentDidMount() {
+
+        Promise.all([
+            fetch('/api/currentarticle').then(response => response.json()),
+            fetch('/api/user').then(response => response.json())
+        ]).then(data => {
+            if (data[1].user) {
+                this.setState({
+                    user: data[1].user,
+                    loggedIn: true,
+                    currentArticleId: data[0]._id,
+                })
+            }
+            console.log("user", this.state.user)
+        })
+    }
+
+
+
+    handleLogout = () => {
+
+        fetch('/api/logout', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            this.setState({ "user": null, "loggedIn": false });
+        }).catch((error) => {
+            this.setState({ "user": null, "loggedIn": false });
+        });
+
+    }
+
+    handleChange = name => event => {
+        this.setState({
+            [name]: event.target.value,
+        });
+    };
+
+    handleToggle = name => event => {
+        this.setState({ [name]: event.target.checked });
+    };
 
 
     handleInputChange = event => {
@@ -142,41 +231,194 @@ class PersistentDrawer extends React.Component {
         this.setState({ "user": userData, "loggedIn": true });
     }
 
-    handleLogout = () => {
-        fetch('/api/logout', {
-            method: 'GET',
+    handleReaction = (event) => {
+
+        event.preventDefault();
+
+        console.log(this.state.user._id)
+        console.log(this.state.currentArticleId)
+
+        let articlesData = {
+            _id: this.state.user._id,
+            articles: this.state.currentArticleId
+        };
+
+        console.log(articlesData);
+
+        fetch('/api/users/' + this.state.user._id, {
+            method: 'Put',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(articlesData)
         }).then((response) => {
-            this.setState({ "user": null, "loggedIn": false });
-        }).catch((error) => {
-            this.setState({ "user": null, "loggedIn": false });
+            return response.json();
+        }).then((myJSON) => {
+            console.log(myJSON);
+            if (myJSON) {
+
+                this.setState(
+                    {
+                        // user: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length - 1]]
+                        forceUpdate: Math.random(),
+                        reacted: true,
+                    }
+                );
+            } else {
+                this.setState(
+                    {
+                        message: "error"
+                    }
+                );
+            }
+        }).catch((reason) => {
+            this.setState({ "error": "Username or password incorrect!" });
+        });
+
+
+        let reactionData = {
+            _userId: this.state.user._id,
+            _articleId: this.state.currentArticleId,
+            wants_discussion: this.state.wantsDiscussion,
+            initial_opinion: this.state.reactionLine
+        };
+
+        console.log(reactionData);
+
+        fetch('/api/reactions', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(reactionData)
+        }).then((response) => {
+            return response.json();
+        }).then((myJSON) => {
+            console.log(myJSON);
+            if (myJSON) {
+
+                this.setState(
+                    {
+                        // user: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length - 1]]
+                    }
+                );
+            } else {
+                this.setState(
+                    {
+                        // message: "error"
+                    }
+                );
+            }
+        }).catch((reason) => {
+            this.setState({ "error": "Username or password incorrect!" });
+        });
+
+        
+    }
+
+    handleCreateChat = (value) => {
+        // this.setState({ "user": userData, "loggedIn": true });
+        console.log("value", value);
+
+        if(value){
+            // console.log(this.state.user._id)
+
+        let formData = {
+            _articleId: this.state.currentArticleId,
+            user_one: this.state.user._id,
+            user_two: value, 
+        };
+
+        console.log(formData);
+
+        fetch('/api/discussion', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        }).then((response) => {
+            return response.json();
+        }).then((myJSON) => {
+            console.log("discussion response",myJSON);
+            if (myJSON) {
+
+                this.setState(
+                    {
+                        chatCreated: true,
+                        discussionId: myJSON._id
+                    }
+                );
+
+            } else {
+
+            }
+        }).catch((reason) => {
+            this.setState({ "error": "Username or password incorrect!" });
         });
     }
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    componentDidMount() {
-
-        Promise.all([
-            fetch('/api/currentarticle').then(response => response.json()),
-            fetch('/api/user').then(response => response.json())
-        ]).then(data => {
-            // console.log(data[1].user);
-            if (data[1].user) {
-                this.setState({
-                    user: data[1],
-                    loggedIn: true,
-                    currentArticleId: data[0]._id,
-                })
-            }
-            
-        })
+    else {
+        console.log("didn't work")
     }
+        
+    }
+
+
+    handleMessage = event => {
+
+        event.preventDefault();
+
+            console.log(this.state.user._id)
+            // console.log(event)
+
+            // console.log(this.state)
+            let formData = {
+                _id: this.state.discussionId,
+                messages: this.state.message
+            };
+
+            console.log(formData);
+
+            fetch('/api/discussion/' + this.state.discussionId, {
+                method: 'Put',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            }).then((response) => {
+                return response.json();
+            }).then((myJSON) => {
+                console.log(myJSON);
+                if (myJSON) {
+
+                    this.setState(
+                        {
+                            message: "",
+                            messagesArray: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length-1]] 
+                        }
+                    );
+                    console.log(this.state.messagesArray)
+                } else {
+                    this.setState(
+                        {
+                            message: "error"
+                        }
+                    );
+                }
+            }).catch((reason) => {
+                this.setState({ "error": "Username or password incorrect!" });
+            });
+        
+    }
+
+
+
+////Drawer Methods/////////////////////////////////////////////////////////////////////////////////////
+
 
     handleDrawerOpen = () => {
         if (!this.state.open) {
@@ -200,6 +442,8 @@ class PersistentDrawer extends React.Component {
         }
     };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
     render() {
 
         const { classes } = this.props;
@@ -220,69 +464,69 @@ class PersistentDrawer extends React.Component {
                     </IconButton>
                 </div>
                 <Divider />
-                <List>
-
-                    <div>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <InboxIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Inbox" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <StarIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Starred" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <SendIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Send mail" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <DraftsIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Drafts" />
-                        </ListItem>
-                    </div>
 
 
-                </List>
+                {/* Chat Message Div */}
+                <div id={"container"} style={{height: "80%"}}>
+
+                
+
+                    {/* {this.messagesArray.map((message) => {<ListItem>{message}</ListItem>})} */}
+
+
+                    {this.state.messagesArray.map((value,index) => (
+                        <ListItem
+                            key={index}
+                            role={undefined}
+                            // dense
+                            button
+                        >
+
+                            <ListItemText primary={`${value}`} /></ListItem>
+                    ))}
+
+
+                </div>
+                
                 <Divider />
-                <List>
 
 
                     <div>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <InboxIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Inbox" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <StarIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Starred" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <SendIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Send mail" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <DraftsIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Drafts" />
-                        </ListItem>
+                    {/* Chat send message */}
+                        
+                    <form className={classes.form} onSubmit={this.handleMessage}>
+                          
+
+                            <FormControl margin="normal" required fullWidth>
+                            <TextField
+                                id="multiline-flexible"
+                                label="Message"
+                                multiline
+                                rowsMax="4"
+                                value={this.state.message}
+                                onChange={this.handleChange('message')}
+                                // className={classes.textField}
+                                margin="normal"
+                            />
+                            </FormControl>
+
+                            <Button
+                                type="submit"
+                                fullWidth
+                                color="primary"
+                                label="submit"
+                                className={classes.submit}
+                                
+                            >
+                                Send Message
+                               
+                        </Button>
+                        </form>
+
+
+
                     </div>
 
-                </List>
             </Drawer>
         );
 
@@ -295,7 +539,7 @@ class PersistentDrawer extends React.Component {
                     <Drawer open={this.state.left} onClose={this.toggleDrawer()}>
                        
 
-        {/* Logout Button */}
+            {/* Logout Button */}
                         <ListItem button onClick={this.handleLogout}>
                             <ListItemIcon>
                                 <LogoutIcon />
@@ -303,25 +547,18 @@ class PersistentDrawer extends React.Component {
                             <ListItemText primary="Log Out" />
                         </ListItem>
                         
-
-                        <ListItem button>
+            {/* All mail button to test sending a message */}
+                        {/* <ListItem button onClick={this.handleMessage}>
                             <ListItemIcon>
                                 <MailIcon />
                             </ListItemIcon>
                             <ListItemText primary="All mail" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <DeleteIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Trash" />
-                        </ListItem>
-                        <ListItem button>
-                            <ListItemIcon>
-                                <ReportIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Spam" />
-                        </ListItem>
+                        </ListItem> */}
+
+                    
+            {/* Map of past articles should go here */}
+
+                    
 
                     </Drawer>
 
@@ -332,22 +569,72 @@ class PersistentDrawer extends React.Component {
                         })}
                     >
 
-                        <MenuIcon style={{ position: "absolute", top: "50px", right: "20px" }} onClick={this.handleDrawerOpen} />
+                        <QuestionAnswer style={{ position: "absolute", top: "50px", right: "20px" }} onClick={this.handleDrawerOpen} />
                         <MenuIcon style={{ position: "absolute", top: "50px", left: "20px" }} onClick={this.toggleDrawer()} />
                         <div id="scrollDiv" style={{width: "100%", height: "100%", overflow: "scroll"}}>
                         
+
+            {/* The article */}
                             <Article article={currentArticleId}/>
-                            {this.state.loggedIn ? <Reactions article={currentArticleId}/> : ""}
+
+            {/* Reactions */}
+                            {this.state.reacted ? <Reactions key={this.state.forceUpdate} handleUser={this.handleCreateChat} articleId={currentArticleId} /> : ""}
+                            
+                            
+            {/* Post a reaction form */}
+                            <form
+                             className={classes.form}
+                             onSubmit={this.handleReaction}
+                              style={{maxWidth: 800, marginRight: "auto",marginLeft: "auto" }}>
+
+
+                                <FormControl margin="normal" required fullWidth>
+                                    <TextField
+                                        id="multiline-flexible"
+                                        label="Reaction"
+                                        multiline
+                                        rowsMax="4"
+                                        value={this.state.reactionLine}
+                                        onChange={this.handleChange('reactionLine')}
+                                        // className={classes.textField}
+                                        margin="normal"
+                                    />
+                                </FormControl>
+
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={this.state.wantsDiscussion}
+                                            onChange={this.handleToggle('wantsDiscussion')}
+                                            value="wantsDiscussion"
+                                            color="primary"
+                                        />
+                                    }
+                                    label="Open for discussion?"
+                                />
+
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    color="primary"
+                                    className={classes.submit}
+                                >
+                                    Post Reaction
+                                </Button>
+                            </form>
                             {/* {this.props.children} */}
 
                         </div>
                     </main>
-
+               
+    
                     {drawer}
                 </div>
             </div>
         );
 
+
+        // Sign In conditional
         if (!this.state.loggedIn) {
             return <SignIn handleUser={this.handleUser} />;
         } else {
