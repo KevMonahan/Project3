@@ -161,6 +161,7 @@ class PersistentDrawer extends React.Component {
             articleText: "",
 
             currentArticleId: "",
+            articleNumber: "",
 
             regusername: "",
             logusername: "",
@@ -527,6 +528,27 @@ class PersistentDrawer extends React.Component {
         
     }
 
+    // getHeadline = (articleId) => {
+    //     fetch('/api/articles/' + articleId)
+    //     .then(response => response.json())
+    //     .then(myJson => {
+    //         console.log("trying to fetch read article headline");
+    //         this.setState({headline: myJson[0].headline});
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //     });
+    // }
+    
+    handlePastArticle = (articleId) => {
+        console.log("inside handleSelectPastArticle");
+        console.log(articleId);
+        let currentVersion = this.state.articleNumber;
+        currentVersion++;
+        this.setState({"currentArticleId": articleId, "articleNumber": currentVersion, "react": true});
+        console.log(this.state.currentArticleId);
+    }
+    
 
 
 ////Drawer Methods/////////////////////////////////////////////////////////////////////////////////////
@@ -676,7 +698,19 @@ class PersistentDrawer extends React.Component {
 
                     
             {/* Map of past articles should go here */}
-
+            <tbody>
+                {console.log(this.state.user)}
+                {(!this.state.loggedIn)
+                ?<p>Placeholder</p>
+                :this.state.user.articles.map((article, i) => {
+                    return (<ListItem key={i} button onClick={() => { this.handlePastArticle(article); }}>
+                        <ListItemIcon>
+                            <LogoutIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={i + 1} />
+                    </ListItem>);
+                })}
+            </tbody>
                     
 
                     </Drawer>
@@ -694,7 +728,7 @@ class PersistentDrawer extends React.Component {
                         
 
             {/* The article */}
-                            <Article article={currentArticleId}/>
+                            <Article article={currentArticleId} key={this.state.articleNumber}/>
 
             {/* Reactions */}
                             {this.state.reacted ? <Reactions key={this.state.forceUpdate} handleUser={this.handleCreateChat} articleId={currentArticleId} /> : ""}
