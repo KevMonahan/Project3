@@ -17,7 +17,7 @@ class Article extends React.Component {
     constructor(props) {
         super(props);
 
-        console.log(props);
+        // console.log(props);
 
         this.state = {
             userId: "",
@@ -43,8 +43,8 @@ class Article extends React.Component {
             .then(response => response.json())
             .then(myJson => {
                 this.setState({ response: myJson[0] });
-                console.log(myJson);
-                console.log(this.state.response.body)
+                // console.log(myJson);
+                // console.log(this.state.response.body)
             });
 
     }
