@@ -11,6 +11,7 @@ import AddUser from '@material-ui/icons/PersonAdd';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
+import TextField from '@material-ui/core/TextField'
 
 
 const styles = theme => ({
@@ -51,27 +52,30 @@ const styles = theme => ({
 
 
 class SignIn extends React.Component {
-        constructor(props) {
-            super(props);
+    constructor(props) {
+        super(props);
 
-            // console.log(props);
+        // console.log(props);
 
-            this.state = {
+        this.state = {
 
-                regusername: "",
-                logusername: "",
-                regpssw: "",
-                logpssw: "",
-                conpssw: "",
-                email: "",
+            regusername: "",
+            logusername: "",
+            regpssw: "",
+            logpssw: "",
+            conpssw: "",
+            email: "",
 
-                loggingIn: true,
+            loggingIn: true,
 
-                error: '',
-            };
-        }
+            error: ' ',
+            passwordError: " ",
+            confirmPasswordError: " ",
+            usernameError: " "
+        };
+    }
 
-/////////////////////////////////////METHODS/////////////////////////////////////////////
+    /////////////////////////////////////METHODS/////////////////////////////////////////////
 
 
 
@@ -138,7 +142,7 @@ class SignIn extends React.Component {
                 // );
 
             } else {
-
+                this.setState({ "error": "Username or password incorrect" });
             }
         }).catch((reason) => {
             this.setState({ "error": "Username or password incorrect!" });
@@ -154,9 +158,9 @@ class SignIn extends React.Component {
 
         // this.props.onRegister(event, this.state.regusername, this.state.regpssw, this.state.conpssw, this.state.email);
 
-        
+
         if (this.state.regpssw !== this.state.conpssw) {
-            alert("passwords must match");
+            this.setState({confirmPasswordError: "Passwords must match"});
             return;
         }
 
@@ -181,22 +185,10 @@ class SignIn extends React.Component {
                 return response.json();
             }).then((myJSON) => {
                 console.log(JSON.stringify(myJSON))
-                if (!myJSON.error) {
-                    this.props.handleUser(myJSON.user);
-                    
-                    // this.setState(
-                    //     { "user": myJSON.user,
-                    //      "loggedIn": true,
-                    //         regusername: "",
-                    //         logusername: "",
-                    //         regpssw: "",
-                    //         logpssw: "",
-                    //         conpssw: "",
-                    //         email: "", }
-                    // );
-
+                if (myJSON.usernameError || myJSON.passwordError) {
+                    this.setState({ "usernameError": (myJSON.usernameError?myJSON.usernameError:" "), "passwordError": (myJSON.passwordError?myJSON.passwordError:" "), "confirmPasswordError": " "})
                 } else {
-                    this.setState({ "error": myJSON.error })
+                    this.props.handleUser(myJSON.user);
                 }
 
             });
@@ -204,142 +196,197 @@ class SignIn extends React.Component {
     };
 
 
-/////////////////////////////////////METHODS/////////////////////////////////////////////
+    /////////////////////////////////////METHODS/////////////////////////////////////////////
 
 
-    render () {
-    const { classes } = this.props;
+    render() {
+        const { classes } = this.props;
 
-    const login = (
-        <React.Fragment>
-            <CssBaseline />
-            <main className={classes.layout}>
-                <Paper className={classes.paper}>
-                    <Avatar className={classes.avatar}>
-                        <LockIcon />
-                    </Avatar>
-                    <Typography variant="headline">Sign in</Typography>
-                    <Button size="small" className={classes.button} onClick={this.handlePageSwitch(false)}>
-                        Register
-                    </Button>
-                    <form className={classes.form} onSubmit={this.handleLogin}>
-                        <FormControl margin="normal" required fullWidth>
-                            <InputLabel htmlFor="logusername">Username</InputLabel>
-
-                            <Input 
-                            value={this.state.logusername} 
-                            id="logusername"
-                            name="logusername" 
-                             autoFocus 
-                             onChange={this.handleInputChange}
-                            
-                            />
-                        </FormControl>
-                        <FormControl margin="normal" required fullWidth>
-                            <InputLabel htmlFor="password">Password</InputLabel>
-                            <Input
-                                value={this.state.logpssw} 
-                                name="logpssw"
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-                                onChange={this.handleInputChange}
-                            />
-                        </FormControl>
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="raised"
-                            color="primary"
-                            className={classes.submit}
-                            
-                        >
-                            Sign in
-                        </Button>
-                    </form>
-                </Paper>
-            </main>
-        </React.Fragment>
-    );
-
-
-
-    const register = (
-        <React.Fragment>
-            <CssBaseline />
-            <main className={classes.layout}>
-                <Paper className={classes.paper}>
-                    <Avatar className={classes.avatar}>
-                        <AddUser />
-                    </Avatar>
-                    <Typography variant="headline">Register</Typography>
-                    <Button size="small" className={classes.button} onClick={this.handlePageSwitch(true)}>
-                        Sign In
-                    </Button>
-                    <form className={classes.form} onSubmit={this.handleRegister}>
-                    
-
-                        <FormControl margin="normal" required fullWidth>
-                            <InputLabel htmlFor="regusername">Username</InputLabel>
-                            <Input
-                                value={this.state.regusername} 
-                                name="regusername"
-                                id="regusername"
-                                onChange={this.handleInputChange}
-                            />
-                        </FormControl>
-
-                        <FormControl margin="normal" required fullWidth>
-                            <InputLabel htmlFor="email">Email Address</InputLabel>
-                            <Input 
-                                value={this.state.email} 
-                                id="email" 
-                                name="email" 
-                                autoComplete="email" 
-                                onChange={this.handleInputChange} 
-                                autoFocus 
-                            />
-                        </FormControl>
-
-                        <FormControl margin="normal" required fullWidth>
-                            <InputLabel htmlFor="password">Password</InputLabel>
-                            <Input
-                                value={this.state.regpssw} 
-                                name="regpssw"
-                                type="password"
-                                id="regPassword"
-                                onChange={this.handleInputChange}
-                                autoComplete="current-password"
-                            />
-                        </FormControl>
-
-                        <FormControl margin="normal" required fullWidth>
-                            <InputLabel htmlFor="password">Confirm Password</InputLabel>
-                            <Input
-                                value={this.state.conpssw} 
-                                name="conpssw"
-                                type="password"
-                                id="conPassword"
-                                onChange={this.handleInputChange}
-                            />
-                        </FormControl>
-
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="raised"
-                            color="primary"
-                            className={classes.submit}
-                        >
-
+        const login = (
+            <React.Fragment>
+                <CssBaseline />
+                <main className={classes.layout}>
+                    <Paper className={classes.paper}>
+                        <Avatar className={classes.avatar}>
+                            <LockIcon />
+                        </Avatar>
+                        <Typography variant="headline">Sign in</Typography>
+                        <Button size="small" className={classes.button} onClick={this.handlePageSwitch(false)}>
                             Register
+                    </Button>
+                        <form className={classes.form} onSubmit={this.handleLogin}>
+
+                            <FormControl margin="normal" required fullWidth>
+                                <TextField
+                                    id="logusername"
+                                    label="Username"
+                                    name="logusername"
+                                    className={classes.textField}
+                                    helperText={this.state.error}
+                                    error={!(this.state.error === " ")}
+                                    margin="normal"
+                                    onChange={this.handleInputChange}
+                                />
+                            </FormControl>
+
+
+                            <FormControl margin="normal" required fullWidth>
+                                <InputLabel htmlFor="password">Password</InputLabel>
+                                <Input
+                                    value={this.state.logpssw}
+                                    name="logpssw"
+                                    type="password"
+                                    id="password"
+                                    autoComplete="current-password"
+                                    onChange={this.handleInputChange}
+                                />
+                            </FormControl>
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="raised"
+                                color="primary"
+                                className={classes.submit}
+
+                            >
+                                Sign in
+                        </Button>
+                        </form>
+                    </Paper>
+                </main>
+            </React.Fragment>
+        );
+
+
+
+        const register = (
+            <React.Fragment>
+                <CssBaseline />
+                <main className={classes.layout}>
+                    <Paper className={classes.paper}>
+                        <Avatar className={classes.avatar}>
+                            <AddUser />
+                        </Avatar>
+                        <Typography variant="headline">Register</Typography>
+                        <Button size="small" className={classes.button} onClick={this.handlePageSwitch(true)}>
+                            Sign In
+                    </Button>
+
+                        <form className={classes.form} onSubmit={this.handleRegister}>
+
+
+                            {/* <FormControl margin="normal" required fullWidth>
+                                <InputLabel htmlFor="regusername">Username</InputLabel>
+                                <Input
+                                    value={this.state.regusername}
+                                    name="regusername"
+                                    id="regusername"
+                                    onChange={this.handleInputChange}
+                                />
+                            </FormControl> */}
+                            <FormControl margin="normal" required fullWidth>
+                                <TextField
+                                    id="regusername"
+                                    label="Username"
+                                    name="regusername"
+                                    className={classes.textField}
+                                    helperText={this.state.usernameError}
+                                    error={!(this.state.usernameError === " ")}
+                                    margin="normal"
+                                    onChange={this.handleInputChange}
+                                />
+                            </FormControl>
+
+                            {/* <FormControl margin="normal" required fullWidth>
+                                <InputLabel htmlFor="email">Email Address</InputLabel>
+                                <Input
+                                    value={this.state.email}
+                                    id="email"
+                                    name="email"
+                                    autoComplete="email"
+                                    onChange={this.handleInputChange}
+                                    autoFocus
+                                />
+                            </FormControl> */}
+
+                            <FormControl margin="normal" required fullWidth>
+                                <TextField
+                                    id="email"
+                                    label="Email Address"
+                                    name="email"
+                                    className={classes.textField}
+                                    margin="normal"
+                                    onChange={this.handleInputChange}
+                                />
+                            </FormControl>
+
+                            {/* <FormControl margin="normal" required fullWidth>
+                                <InputLabel htmlFor="password">Password</InputLabel>
+                                <Input
+                                    value={this.state.regpssw}
+                                    name="regpssw"
+                                    type="password"
+                                    id="regPassword"
+                                    onChange={this.handleInputChange}
+                                    autoComplete="current-password"
+                                />
+                            </FormControl> */}
+
+                            <FormControl margin="normal" required fullWidth>
+                                <TextField
+                                    id="regPassword"
+                                    label="Password"
+                                    name="regpssw"
+                                    type="password"
+                                    className={classes.textField}
+                                    helperText={this.state.passwordError}
+                                    error={!(this.state.passwordError === " ")}
+                                    margin="normal"
+                                    onChange={this.handleInputChange}
+                                />
+                            </FormControl>
+
+                            {/* <FormControl margin="normal" required fullWidth>
+                                <InputLabel htmlFor="password">Confirm Password</InputLabel>
+                                <Input
+                                    value={this.state.conpssw}
+                                    name="conpssw"
+                                    type="password"
+                                    id="conPassword"
+                                    onChange={this.handleInputChange}
+                                />
+                            </FormControl> */}
+
+                             <FormControl margin="normal" required fullWidth>
+                                <TextField
+                                    id="conPassword"
+                                    label="Confirm Password"
+                                    name="conpssw"
+                                    type="password"
+                                    className={classes.textField}
+                                    helperText={this.state.confirmPasswordError}
+                                    error={!(this.state.confirmPasswordError === " ")}
+                                    margin="normal"
+                                    onChange={this.handleInputChange}
+                                />
+                            </FormControl>
+
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="raised"
+                                color="primary"
+                                className={classes.submit}
+                            >
+
+                                Register
 
                         </Button>
-                    </form>
-                </Paper>
-            </main>
-        </React.Fragment>
-    );
+                        </form>
+                    </Paper>
+                </main>
+            </React.Fragment>
+        );
 
 
         if (this.state.loggingIn) {
