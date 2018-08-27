@@ -152,28 +152,25 @@ module.exports = function (passport) {
     });
 
     router.post("/api/register", function (req, res) {
-        const reUsername = new RegExp("^[a-zA-Z0-9]*$/"); //   ^[a-zA-Z0-9]*$
-        const rePassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+        const rePassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])");
 
         let username = req.body.username;
         let password = req.body.password;
-        let errorMessage = "";
+        let passwordError = "";
+        let usernameError = "";
 
         if (!username || username.length < 5) {
-            errorMessage += "Username must be at least 5 characters long.  ";
+            usernameError = "Username must be at least 5 characters long.  ";
         }
-        // else if (!reUsername.test(username)) {
-        //     errorMessage += "Username must be only letters and numbers.  ";
-        // }
 
         if (!password || password.length < 8) {
-            errorMessage += "Password must be at least 8 characters long.  ";
+            passwordError = "Password must be at least 8 characters long.  ";
         } else if (!rePassword.test(password)) {
-            errorMessage += "Password must contain a lowercase letter, uppercase letter, number, and special character (like !@#$%^&*).";
+            passwordError = "Needs a lowercase letter, uppercase letter, and number.";
         }
 
-        if (errorMessage) {
-            return res.json({ "success": false, "error": errorMessage });
+        if (usernameError || passwordError) {
+            return res.json({ "success": false, "usernameError": usernameError, "passwordError": passwordError });
         }
 
         username = username.toLowerCase();
