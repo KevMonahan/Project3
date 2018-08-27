@@ -98,22 +98,45 @@ module.exports = function (passport) {
     });
 
     router.post("/api/register", function (req, res) {
-        console.log("in /register");
-        console.log(req.body);
-        db.User.findOne({ username: req.body.username.toLowerCase() }, function (err, dbUser) {
+        const reUsername = new RegExp("^[a-zA-Z0-9]*$/"); //   ^[a-zA-Z0-9]*$
+        const rePassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+
+        let username = req.body.username;
+        let password = req.body.password;
+        let errorMessage = "";
+
+        if (!username || username.length < 5) {
+            errorMessage += "Username must be at least 5 characters long.  ";
+        } 
+        // else if (!reUsername.test(username)) {
+        //     errorMessage += "Username must be only letters and numbers.  ";
+        // }
+
+        if (!password || password.length < 8) {
+            errorMessage += "Password must be at least 8 characters long.  ";
+        } else if (!rePassword.test(password)) {
+            errorMessage += "Password must contain a lowercase letter, uppercase letter, number, and special character (like !@#$%^&*).";
+        }
+
+        if (errorMessage) {
+            return res.json({"success": false, "error": errorMessage});
+        }
+
+        username = username.toLowerCase();
+        db.User.findOne({ username: username }, function (err, dbUser) {
 
             if (err) {
                 console.log(err);
             }
             if (dbUser) {
-                res.json({ "success": false, "error": "Username already taken, pick another" });
+                res.json({ "success": false, "error": "Username already taken, pick another." });
             } else {
                 const newUser = {};
-                newUser["username"] = req.body.username.toLowerCase();
+                newUser["username"] = username;
                 newUser["email"] = req.body.email;
                 newUser["password_salt"] = crypto.randomBytes(132).toString('hex').slice(0, 132);
                 let hash = crypto.createHmac("sha512", newUser["password_salt"]);
-                hash.update(req.body.password);
+                hash.update(password);
                 newUser["password_hash"] = hash.digest("hex");
                 db.User.create(newUser, function (errorOnCreation, createdUser) {
                     if (errorOnCreation) {
