@@ -433,7 +433,7 @@ class PersistentDrawer extends React.Component {
         console.log(articleId);
         let currentVersion = this.state.articleNumber;
         currentVersion++;
-        this.setState({"currentArticleId": articleId, "articleNumber": currentVersion});
+        this.setState({"currentArticleId": articleId, "articleNumber": currentVersion, "react": true});
         console.log(this.state.currentArticleId);
     }
     
