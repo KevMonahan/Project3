@@ -64,6 +64,7 @@ function nprArticleScrape() {
 
                     db.Article.create(formData).then(function (dbArticle) {
                         console.log("dbArticle", dbArticle);
+                        mongoose.connection.close()
                     }).catch(err => console.log(err));
 
 
@@ -138,6 +139,7 @@ function nationArticleScrape() {
 
                     db.Article.create(formData).then(function (dbArticle) {
                         console.log("dbArticle", dbArticle);
+                        mongoose.connection.close()
                     }).catch(err => console.log(err));
 
                 }
@@ -269,6 +271,7 @@ function blazeArticleScrape() {
 
                     db.Article.create(formData).then(function (dbArticle) {
                         console.log("dbArticle", dbArticle);
+                        mongoose.connection.close()
                     }).catch(err => console.log(err));
 
                 }
