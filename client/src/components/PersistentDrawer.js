@@ -51,10 +51,28 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import Switch from '@material-ui/core/Switch';
 
+import io from 'socket.io-client';
+
 // import Input from "../components/Input.js";
 
 const drawerWidth = 300;
 
+const socket = io();
+
+function switchRoom(room) {
+    socket.emit('switchRoom', room);
+}
+
+function sendMessage(message){
+    socket.emit('message', message);
+}
+
+// socket.on("newMessage", something);
+
+// function something(message){
+//     PersistentDrawer.handleSync()
+//     console.log("message", message)
+// }
 
 
 const styles = theme => ({
@@ -122,7 +140,6 @@ class PersistentDrawer extends React.Component {
         super(props);
 
 
-
         fetch('/api/currentarticle')
             .then(response => response.json())
             .then(myJson => {
@@ -131,6 +148,9 @@ class PersistentDrawer extends React.Component {
             })
             .catch(err => console.log(err))
 
+        socket.on("newMessage", this.something);
+
+        
 
         this.state = {
             open: false,
@@ -187,10 +207,14 @@ class PersistentDrawer extends React.Component {
                     currentArticleId: data[0]._id,
                 })
             }
-            console.log("user", this.state.user)
+            // console.log("user", this.state.user)
         })
     }
 
+    something = (message)=> {
+    this.handleSync()
+    console.log("message", message)
+}
 
 
     handleLogout = () => {
@@ -207,6 +231,10 @@ class PersistentDrawer extends React.Component {
             this.setState({ "user": null, "loggedIn": false });
         });
 
+    }
+
+    handleRefresh = () => {
+        window.location.reload();
     }
 
     handleChange = name => event => {
@@ -235,15 +263,15 @@ class PersistentDrawer extends React.Component {
 
         event.preventDefault();
 
-        console.log(this.state.user._id)
-        console.log(this.state.currentArticleId)
+        // console.log(this.state.user._id)
+        // console.log(this.state.currentArticleId)
 
         let articlesData = {
             _id: this.state.user._id,
             articles: this.state.currentArticleId
         };
 
-        console.log(articlesData);
+        // console.log(articlesData);
 
         fetch('/api/users/' + this.state.user._id, {
             method: 'Put',
@@ -255,7 +283,7 @@ class PersistentDrawer extends React.Component {
         }).then((response) => {
             return response.json();
         }).then((myJSON) => {
-            console.log(myJSON);
+            // console.log(myJSON);
             if (myJSON) {
 
                 this.setState(
@@ -284,7 +312,7 @@ class PersistentDrawer extends React.Component {
             initial_opinion: this.state.reactionLine
         };
 
-        console.log(reactionData);
+        // console.log(reactionData);
 
         fetch('/api/reactions', {
             method: 'POST',
@@ -314,8 +342,87 @@ class PersistentDrawer extends React.Component {
         }).catch((reason) => {
             this.setState({ "error": "Username or password incorrect!" });
         });
+    }
 
-        
+
+    handleSync = () => {
+        console.log("test")
+
+
+        // console.log(this.state.user._id)
+        // console.log(event)
+
+        // console.log(this.state)
+        let formData = {
+            _id: this.state.discussionId,
+        };
+
+        // console.log("socketTest", formData);
+
+        // fetch('/api/messages/' + this.state.discussionId, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json'
+        //     }
+        // }).then((response) => {
+        //     return response.JSON();
+        //     // console.log("socket api response", response);
+        //     // this.setState({ "user": null, "loggedIn": false });
+        // }).then(data => console.log("socket api response", data))
+        // .catch((error) => {
+        //     this.setState({ message: "error" });
+        // });
+
+        fetch('/api/messages/' + this.state.discussionId)
+            .then(function (response) {
+                return response.json();
+            })
+            .then((myJson)=> {
+                
+                console.log(myJson[0]);
+
+                this.setState(
+                    {
+                        // message: "",
+                        messagesArray: [...this.state.messagesArray, myJson[0].messages[myJson[0].messages.length-1]] 
+                    }
+                );
+
+            });
+
+
+        // fetch('/api/discussion/' + this.state.discussionId, {
+        //     method: 'Get',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(formData)
+        // }).then((response) => {
+        //     return response.json();
+        // }).then((myJSON) => {
+        //     console.log("socket api response",myJSON);
+        //     if (myJSON) {
+
+        //         this.setState(
+        //             {
+        //                 messagesArray: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length - 1]]
+        //             }
+        //         );
+        //         console.log(this.state.messagesArray)
+        //     } else {
+        //         this.setState(
+        //             {
+        //                 message: "error"
+        //             }
+        //         );
+        //     }
+        // }).catch((reason) => {
+        //     this.setState({ "error": "Username or password incorrect!" });
+        // });
+
+
     }
 
     handleCreateChat = (value) => {
@@ -346,6 +453,8 @@ class PersistentDrawer extends React.Component {
             console.log("discussion response",myJSON);
             if (myJSON) {
 
+                switchRoom(myJSON._id);
+
                 this.setState(
                     {
                         chatCreated: true,
@@ -367,7 +476,7 @@ class PersistentDrawer extends React.Component {
     }
 
 
-    handleMessage = event => {
+    handleMessage = (event) => {
 
         event.preventDefault();
 
@@ -398,9 +507,12 @@ class PersistentDrawer extends React.Component {
                     this.setState(
                         {
                             message: "",
-                            messagesArray: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length-1]] 
+                            // messagesArray: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length-1]] 
                         }
                     );
+
+                    sendMessage("test")
+
                     console.log(this.state.messagesArray)
                 } else {
                     this.setState(
@@ -537,6 +649,13 @@ class PersistentDrawer extends React.Component {
                 <div className={classes.appFrame}>
 
                     <Drawer open={this.state.left} onClose={this.toggleDrawer()}>
+
+                        <ListItem button onClick={this.handleRefresh}>
+                            <ListItemIcon>
+                                <LogoutIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Todays Article" />
+                        </ListItem>
                        
 
             {/* Logout Button */}
