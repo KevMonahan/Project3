@@ -54,18 +54,19 @@ module.exports = function (passport) {
     router.put("/api/users/:userId", ensureLoggedIn(), function (req, res) {
         const updateArticles = req.body.articles
 
-        db.User.findOneAndUpdate({ _id: req.params.userId }, { $push: { articles: updateArticles} }, { new: true }).then(function (dbUser) {
-            res.json(dbUser);
-        })
+        db.User.findOneAndUpdate({ _id: req.params.userId }, { $push: { articles: updateArticles } },
+            { new: true }).then(function (dbUser) {
+                res.json(dbUser);
+            })
     });
-   
+
     //get all articles
     router.get("/api/articles", ensureLoggedIn(), function (req, res) {
         db.Article.find(req.query).then(function (dbArticle) {
             res.json(dbArticle);
         })
     });
-   
+
     //get most recent article
     router.get("/api/currentarticle", function (req, res) {
         db.Article.findOne({}, {}, { sort: { '_id': -1 } }, function (err, post) {
@@ -103,6 +104,13 @@ module.exports = function (passport) {
             res.json(dbReaction);
         })
     });
+
+    router.put("/api/reactions/:reactionId", ensureLoggedIn(), function (req, res) {
+        db.Reaction.findOneAndUpdate({ _id: req.params.reactionId }, { $set: { wants_discussion: false } }, { new: true })
+            .then(function (dbReaction) {
+                res.json(dbReaction);
+            })
+    })
     // router.post("/api/reactions", function (req, res) {
     //     db.Reaction.create(req.query).then(function (dbReaction) {
     //         res.json(dbReaction);
@@ -112,17 +120,17 @@ module.exports = function (passport) {
     // START: Passport routes 
     // Used for login, registration, logout, checking if logged in on refresh
     // ========================================================================
-    router.post('/api/login', passport.authenticate("local"), function (req, res) {        
+    router.post('/api/login', passport.authenticate("local"), function (req, res) {
 
         if (req.user) {
             let newUser = req.user;
             newUser.password_hash = undefined;
             newUser.password_salt = undefined;
-            res.json({"success": true, "user": newUser})
+            res.json({ "success": true, "user": newUser })
         } else {
-            res.json({"success": false});
+            res.json({ "success": false });
         }
-        
+
     });
 
     router.post("/api/register", function (req, res) {
@@ -135,7 +143,7 @@ module.exports = function (passport) {
 
         if (!username || username.length < 5) {
             errorMessage += "Username must be at least 5 characters long.  ";
-        } 
+        }
         // else if (!reUsername.test(username)) {
         //     errorMessage += "Username must be only letters and numbers.  ";
         // }
@@ -147,7 +155,7 @@ module.exports = function (passport) {
         }
 
         if (errorMessage) {
-            return res.json({"success": false, "error": errorMessage});
+            return res.json({ "success": false, "error": errorMessage });
         }
 
         username = username.toLowerCase();
@@ -177,26 +185,26 @@ module.exports = function (passport) {
 
                         createdUser["password_hash"] = undefined;
                         createdUser["password_salt"] = undefined;
-                        res.json({"user": createdUser, "error": undefined});
+                        res.json({ "user": createdUser, "error": undefined });
                     });
                 });
             }
         });
     });
 
-    router.get("/api/logout", function(req, res) {
+    router.get("/api/logout", function (req, res) {
         req.logout();
-        res.json({"success": true});
+        res.json({ "success": true });
     });
 
-    router.get("/api/user", function(req, res) {
+    router.get("/api/user", function (req, res) {
         if (req.user) {
             let myUser = req.user;
             myUser.password_hash = undefined;
             myUser.password_salt = undefined;
-            res.json({"user": myUser});
+            res.json({ "user": myUser });
         } else {
-            res.json({"user": null});
+            res.json({ "user": null });
         }
     });
     // ========================================================================
@@ -204,8 +212,8 @@ module.exports = function (passport) {
     // ========================================================================
 
     /* Temp path for testing path protection */
-    router.get("/api/something", ensureLoggedIn(), function(req, res) {
-        res.json({success:(req.user? "Yes":"No"), user:req.user});//test path protection
+    router.get("/api/something", ensureLoggedIn(), function (req, res) {
+        res.json({ success: (req.user ? "Yes" : "No"), user: req.user });//test path protection
     });
 
     return router;
