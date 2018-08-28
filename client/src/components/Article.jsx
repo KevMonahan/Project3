@@ -46,7 +46,6 @@ class Article extends React.Component {
                 // console.log(myJson);
                 // console.log(this.state.response.body)
             });
-
     }
 
 
