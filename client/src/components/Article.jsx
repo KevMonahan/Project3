@@ -5,11 +5,13 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = {
     fontFamily: "Cardo",
     fontSize: "20px",
-    width: "80%",
-    textAlign: "center",
+    width: "70%",
+    textAlign: "left",
     marginLeft: "auto",
     marginRight: "auto",
     overflow: "scroll",
+    overflowX: "hidden",
+    overflowY: "auto",
 };
 
 
@@ -32,9 +34,7 @@ class Article extends React.Component {
     }
 
     componentDidMount() {
-        // this.setState({article_id: this.props.article});
         console.log(this.state.article_id)
-        // console.log(this.props)
         this.loadReactions();
     }
 
@@ -43,24 +43,21 @@ class Article extends React.Component {
             .then(response => response.json())
             .then(myJson => {
                 this.setState({ response: myJson[0] });
-                // console.log(myJson);
-                // console.log(this.state.response.body)
             });
     }
-
 
     render(){
     
         return (
 
     <div style={styles}>
-    {this.props.reacted ? <h1>{this.state.response.headline}</h1> : <h1>The Daily Article</h1> }
-    {this.props.reacted ? <h2>◆ {this.state.response.author} ◆</h2> : "" }
-    {this.props.reacted ? <h3>'{this.state.response.article_url}'</h3> : ""}
-    <div style={{ whiteSpace: "pre-wrap" }}>{this.state.response.body}</div>
+        {this.props.reacted ? <h1 style={{textAlign: "center"}}>{this.state.response.headline}</h1> : <h1>The Daily Article</h1> }
+        {this.props.reacted ? <h2 style={{ textAlign: "center"}}>◆ {this.state.response.author} ◆</h2> : "" }
+                {this.props.reacted ? <a href={this.state.response.article_url} target="_blank" style={{ textDecoration: "none" }}><h4 style={{ textAlign: "center" }}>'{this.state.response.article_url}'</h4></a> : ""}
+        <div style={{ whiteSpace: "pre-wrap", marginTop: "70px"}}>{this.state.response.body}</div>
 
-    {/* {console.log(this.state.response.body)} */} 
-</div>
+        {/* {console.log(this.state.response.body)} */} 
+    </div>
 
         )
     }

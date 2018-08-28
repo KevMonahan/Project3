@@ -1,55 +1,38 @@
-/// Tonight to do.
-
-// Chat
-
-// Reaction Submit (if user has already reacted disable reaction form) 
-// (show comments/context)
-
-// hide title until reacted show title author website after reacted
-
-// Clean up code / styling
-
 import React from 'react';
+import io from 'socket.io-client';
+
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import "./drawer.css";
+
 import Drawer from '@material-ui/core/Drawer';
-import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import CallMade from '@material-ui/icons/CallMade'
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import DraftsIcon from '@material-ui/icons/Drafts';
-import StarIcon from '@material-ui/icons/Star';
-import SendIcon from '@material-ui/icons/Send';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import LogoutIcon from '@material-ui/icons/RemoveCircleOutline';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import Switch from '@material-ui/core/Switch';
 
+import Reactions from "./Reactions.jsx";
+import Article from "./Article.jsx";
+import SignIn from "../pages/SignIn.js";
+
+import IconButton from '@material-ui/core/IconButton';
+import Sort from '@material-ui/icons/Sort';
+import CallMade from '@material-ui/icons/CallMade';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import LogoutIcon from '@material-ui/icons/RemoveCircleOutline';
 import QuestionAnswer from '@material-ui/icons/QuestionAnswer';
 
 
-import MailIcon from '@material-ui/icons/Mail';
-import DeleteIcon from '@material-ui/icons/Delete';
-import ReportIcon from '@material-ui/icons/Report';
-import Reactions from "./Reactions.jsx";
-import Article from "./Article.jsx";
-import "./drawer.css";
-import SignIn from "../pages/SignIn.js";
 
-import FormControl from '@material-ui/core/FormControl';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import Switch from '@material-ui/core/Switch';
 
-import io from 'socket.io-client';
 
-// import Input from "../components/Input.js";
+
+
 
 const drawerWidth = 300;
 
@@ -62,14 +45,6 @@ function switchRoom(room) {
 function sendMessage(message){
     socket.emit('message', message);
 }
-
-// socket.on("newMessage", something);
-
-// function something(message){
-//     PersistentDrawer.handleSync()
-//     console.log("message", message)
-// }
-
 
 const styles = theme => ({
     root: {
@@ -94,6 +69,7 @@ const styles = theme => ({
     drawerPaper: {
         position: 'relative',
         width: drawerWidth,
+        overflowX: "hidden"
     },
     drawerHeader: {
         display: 'flex',
@@ -131,7 +107,7 @@ const styles = theme => ({
     },
 });
 
-class PersistentDrawer extends React.Component {
+class Home extends React.Component {
     constructor(props) {
         super(props);
 
@@ -167,14 +143,14 @@ class PersistentDrawer extends React.Component {
             loggedIn: false,
 
             message: "",
+            messagesArray: [],
+
             wantsDiscussion: true,
             reactionLine: "",
             reacted: false,
-            messagesArray: [],
 
             forceUpdate: "value",
 
-            chatCreated: false,
             chat: "",
 
             discussionId: "",
@@ -235,7 +211,7 @@ class PersistentDrawer extends React.Component {
                             }
                         );
 
-                    switchRoom(myJson._id);
+                        switchRoom(myJson._id);
                 
                     } else{
                             this.setState(
@@ -355,7 +331,7 @@ class PersistentDrawer extends React.Component {
                 );
             }
         }).catch((reason) => {
-            this.setState({ "error": "Username or password incorrect!" });
+            console.log(reason)
         });
 
 
@@ -368,6 +344,8 @@ class PersistentDrawer extends React.Component {
 
         // console.log(reactionData);
 
+
+        //???????????????????????????????????????
         fetch('/api/reactions', {
             method: 'POST',
             headers: {
@@ -402,7 +380,6 @@ class PersistentDrawer extends React.Component {
     handleSync = () => {
         console.log("test")
 
-
         fetch('/api/messages/' + this.state.discussionId)
             .then(function (response) {
                 return response.json();
@@ -417,17 +394,13 @@ class PersistentDrawer extends React.Component {
                         messagesArray: [...this.state.messagesArray, myJson[0].messages[myJson[0].messages.length-1]] 
                     }
                 );
-
             });
-
     }
 
     handleCreateChat = (value) => {
-        // this.setState({ "user": userData, "loggedIn": true });
         console.log("value", value);
 
         if(value){
-            // console.log(this.state.user._id)
 
         let formData = {
             _articleId: this.state.currentArticleId,
@@ -454,7 +427,6 @@ class PersistentDrawer extends React.Component {
 
                 this.setState(
                     {
-                        chatCreated: true,
                         discussionId: myJSON._id
                     }
                 );
@@ -462,7 +434,7 @@ class PersistentDrawer extends React.Component {
         }).catch((reason) => {
             this.setState({ "error": "Username or password incorrect!" });
         });
-            // /api/reactions /: user1 /: user2
+
 
             fetch(`/api/reactions/${this.state.user._id}/${value}`, {
                 method: 'Put',
@@ -478,10 +450,8 @@ class PersistentDrawer extends React.Component {
 
                     this.setState(
                         {
-
-                            forceUpdate: Math.random()
-                            // message: "",
-                            // messagesArray: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length-1]] 
+                            forceUpdate: Math.random(),
+                            // messagesArray: [...this.state.messagesArray, "Say hello!"] 
                         }
                     );
     
@@ -495,11 +465,8 @@ class PersistentDrawer extends React.Component {
             }).catch((reason) => {
                 console.log(reason);
             });      
-    }
-    else {
-        console.log("didn't work")
-    }
-        
+        }
+    
     }
 
 
@@ -507,11 +474,11 @@ class PersistentDrawer extends React.Component {
 
         event.preventDefault();
 
-            console.log(this.state.user._id)
+            // console.log(this.state.user._id)
 
             let formData = {
                 _id: this.state.discussionId,
-                messages: this.state.message
+                messages:  this.state.user.username + ": " + this.state.message
             };
 
             console.log(formData);
@@ -547,13 +514,10 @@ class PersistentDrawer extends React.Component {
                     );
                 }
             }).catch((reason) => {
-                this.setState({ "error": "Username or password incorrect!" });
-            });
-        
+                console.log(reason)
+            }); 
     }
 
-
-    
     handlePastArticle = (articleId) => {
 
         console.log("inside handleSelectPastArticle", articleId);
@@ -567,17 +531,19 @@ class PersistentDrawer extends React.Component {
             })
             .then((myJson) => {
 
-                console.log(myJson);
+                console.log("Past articles",myJson.messages);
 
                 this.setState(
                     {
+
+                        //add here
 
                         "currentArticleId": articleId,
                         "articleNumber": currentVersion,
                         discussionId: myJson._id,
                         reacted: true,
                         // message: "",
-                        // messagesArray: [...this.state.messagesArray, myJson[0].messages[myJson[0].messages.length - 1]]
+                        messagesArray: [...myJson.messages]
                     }
                 );
 
@@ -587,7 +553,6 @@ class PersistentDrawer extends React.Component {
                 console.log(error)
                 // this.setState({ "user": null, "loggedIn": false });
             });
-
     }
     
 
@@ -623,13 +588,17 @@ class PersistentDrawer extends React.Component {
         const { classes } = this.props;
         const { anchor, open, currentArticleId, reacted, articleNumber, user} = this.state;
 
-        const drawer = (
+        const articlesMenu = (
             <Drawer
                 variant="persistent"
                 anchor={anchor}
                 open={open}
                 classes={{
                     paper: classes.drawerPaper,
+                }}
+                style={{
+                    overflowX: "hidden",
+                    // overflowY: "auto",
                 }}
             >
                 <div className={classes.drawerHeader}>
@@ -639,29 +608,36 @@ class PersistentDrawer extends React.Component {
                 </div>
                 <Divider />
 
-
                 {/* Chat Message Div */}
-                <div id={"container"} style={{height: "80%"}}>
-
-                
+                <div id={"container"} style={{
+                    height: "80%", overflow: "scroll",overflowX: "hidden",overflowY: "auto",}}>
+                    <div style={{
+                        height: "100%", overflow: "scroll", overflowX: "hidden", overflowY: "auto",
+                    }}>
 
                     {/* {this.messagesArray.map((message) => {<ListItem>{message}</ListItem>})} */}
-
-
+               
                     {this.state.messagesArray.map((value,index) => (
+                        <React.Fragment>
                         <ListItem
                             key={index}
                             role={undefined}
                             // dense
                             button
+                            style={{maxWidth: 290}}
                         >
-                            <ListItemText primary={`${value}`} />
+                        <ListItemText style={{ maxWidth: 290 }} primary={`${value}`} />
                         </ListItem>
-                            
-                            
-                    ))}
-
-
+                        <Divider style={{ maxWidth: 290 }}/>
+                        </React.Fragment>
+                        )
+                    )
+                    
+                    
+                    }
+                    </div>
+        
+        
                 </div>
                 
                 <Divider />
@@ -675,7 +651,7 @@ class PersistentDrawer extends React.Component {
                         <form className={classes.form} onSubmit={this.handleMessage}>
                           
 
-                            <FormControl margin="normal" required>
+                            <FormControl style={{maxWidth: 290}} margin="normal" required fullWidth>
                             <TextField
                                 id="multiline-flexible"
                                 label="Message"
@@ -709,29 +685,18 @@ class PersistentDrawer extends React.Component {
         );
 
 
-        const home = (
-            <div className={classes.root}>
+        const chatDrawer = (
+            <div className={classes.root} style={{overflowX: "hidden", overflowY: "hidden"}}>
 
                 <div className={classes.appFrame}>
 
-                    <Drawer open={this.state.left} onClose={this.toggleDrawer()}>
+                    <Drawer open={this.state.left} onClose={this.toggleDrawer()} style={{overflowY: "hidden"}}>
 
                         <ListItem button onClick={this.handleRefresh}>
-                            <ListItemIcon>
-                                <LogoutIcon />
-                            </ListItemIcon>
                             <ListItemText primary="Todays Article" />
                         </ListItem>
                        
 
-            {/* Logout Button */}
-                        <ListItem button onClick={this.handleLogout}>
-                            <ListItemIcon>
-                                <LogoutIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Log Out" />
-                        </ListItem>
-                        
             {/* All mail button to test sending a message */}
                         {/* <ListItem button onClick={this.handleMessage}>
                             <ListItemIcon>
@@ -751,12 +716,19 @@ class PersistentDrawer extends React.Component {
                         <ListItemIcon>
                             <LogoutIcon />
                         </ListItemIcon>
-                        <ListItemText primary={i + 1} />
+                        <ListItemText primary={ i + 1} />
                     </ListItem>);
                 })}
             </div>
-                    
 
+                        {/* Logout Button */}
+                        <ListItem button onClick={this.handleLogout}>
+                            <ListItemIcon>
+                                <LogoutIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Log Out" />
+                        </ListItem>
+                    
                     </Drawer>
 
                     <main
@@ -767,7 +739,7 @@ class PersistentDrawer extends React.Component {
                     >
 
                         <QuestionAnswer style={{ position: "absolute", top: "50px", right: "20px" }} onClick={this.handleDrawerOpen} />
-                        <MenuIcon style={{ position: "absolute", top: "50px", left: "20px" }} onClick={this.toggleDrawer()} />
+                        <Sort style={{ position: "absolute", top: "50px", left: "20px" }} onClick={this.toggleDrawer()} />
                         <div id="scrollDiv" style={{width: "100%", height: "100%", overflow: "scroll"}}>
                         
 
@@ -795,9 +767,9 @@ class PersistentDrawer extends React.Component {
             { !this.state.reacted &&
     
                             <form
-                             className={classes.form}
-                             onSubmit={this.handleReaction}
-                            style={{maxWidth: 700, marginRight: "auto",marginLeft: "auto" }}>
+                            className={classes.form}
+                            onSubmit={this.handleReaction}
+                            style={{maxWidth: 700, marginRight: "auto", marginLeft: "auto" }}>
 
 
                                 <FormControl margin="normal" required fullWidth>
@@ -842,8 +814,8 @@ class PersistentDrawer extends React.Component {
                         </div>
                     </main>
                
-    
-                    {drawer}
+                {articlesMenu}
+
                 </div>
             </div>
         );
@@ -853,14 +825,14 @@ class PersistentDrawer extends React.Component {
         if (!this.state.loggedIn) {
             return <SignIn handleUser={this.handleUser} />;
         } else {
-            return home;
+            return chatDrawer;
         }
     }         
 }
 
-PersistentDrawer.propTypes = {
+Home.propTypes = {
     classes: PropTypes.object.isRequired,
     theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(PersistentDrawer);
+export default withStyles(styles, { withTheme: true })(Home);
