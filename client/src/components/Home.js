@@ -1,5 +1,12 @@
+//articles list icons
+//add username to reactions append the text like with the messages
+
+
+
 import React from 'react';
 import io from 'socket.io-client';
+// import ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom';
 
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -15,13 +22,17 @@ import Button from '@material-ui/core/Button';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Switch from '@material-ui/core/Switch';
+import IconButton from '@material-ui/core/IconButton';
+
 
 import Reactions from "./Reactions.jsx";
 import Article from "./Article.jsx";
 import SignIn from "../pages/SignIn.js";
 
-import IconButton from '@material-ui/core/IconButton';
+
 import Sort from '@material-ui/icons/Sort';
+import Done from '@material-ui/icons/Done';
+import Subject from '@material-ui/icons/Subject';
 import CallMade from '@material-ui/icons/CallMade';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import LogoutIcon from '@material-ui/icons/RemoveCircleOutline';
@@ -110,6 +121,9 @@ const styles = theme => ({
 class Home extends React.Component {
     constructor(props) {
         super(props);
+
+
+        // this.textInput = React.createRef();
 
         fetch('/api/currentarticle')
             .then(response => response.json())
@@ -211,6 +225,7 @@ class Home extends React.Component {
                             }
                         );
 
+                        this.scrollToBottom();
                         switchRoom(myJson._id);
                 
                     } else{
@@ -392,8 +407,11 @@ class Home extends React.Component {
                     {
                         // message: "",
                         messagesArray: [...this.state.messagesArray, myJson[0].messages[myJson[0].messages.length-1]] 
-                    }
+                    } 
                 );
+
+                this.scrollToBottom();
+
             });
     }
 
@@ -581,14 +599,29 @@ class Home extends React.Component {
         }
     };
 
+    onScroll = () => {
+        // TODO: call fetchHistory when scrolled to the top
+        // console.log("scrolling")
+    };
+
+    
+    scrollToBottom = () => {
+        const { messageList } = this.refs;
+        const scrollHeight = messageList.scrollHeight;
+        const height = messageList.clientHeight;
+        const maxScrollTop = scrollHeight - height;
+        ReactDOM.findDOMNode(messageList).scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
+    }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     render() {
 
+        const { refs, props } = this;
         const { classes } = this.props;
         const { anchor, open, currentArticleId, reacted, articleNumber, user} = this.state;
 
-        const articlesMenu = (
+        const chatDrawer = (
             <Drawer
                 variant="persistent"
                 anchor={anchor}
@@ -611,24 +644,26 @@ class Home extends React.Component {
                 {/* Chat Message Div */}
                 <div id={"container"} style={{
                     height: "80%", overflow: "scroll",overflowX: "hidden",overflowY: "auto",}}>
+
                     <div style={{
                         height: "100%", overflow: "scroll", overflowX: "hidden", overflowY: "auto",
-                    }}>
+                    }} onScroll={this.onScroll}
+                        ref={"messageList"}>
 
                     {/* {this.messagesArray.map((message) => {<ListItem>{message}</ListItem>})} */}
                
-                    {this.state.messagesArray.map((value,index) => (
-                        <React.Fragment>
+                    {this.state.messagesArray.map((value, index) => (
+                        <React.Fragment key={index}>
                         <ListItem
-                            key={index}
                             role={undefined}
                             // dense
                             button
                             style={{maxWidth: 290}}
                         >
-                        <ListItemText style={{ maxWidth: 290 }} primary={`${value}`} />
+                        <ListItemText style={{ maxWidth: 290, fontSize: "5px" }} primary={`${value}`} />
                         </ListItem>
                         <Divider style={{ maxWidth: 290 }}/>
+
                         </React.Fragment>
                         )
                     )
@@ -685,7 +720,7 @@ class Home extends React.Component {
         );
 
 
-        const chatDrawer = (
+        const articlesMenu = (
             <div className={classes.root} style={{overflowX: "hidden", overflowY: "hidden"}}>
 
                 <div className={classes.appFrame}>
@@ -693,19 +728,13 @@ class Home extends React.Component {
                     <Drawer open={this.state.left} onClose={this.toggleDrawer()} style={{overflowY: "hidden"}}>
 
                         <ListItem button onClick={this.handleRefresh}>
+                            <ListItemIcon>
+                                <Subject />
+                            </ListItemIcon>
                             <ListItemText primary="Todays Article" />
                         </ListItem>
                        
 
-            {/* All mail button to test sending a message */}
-                        {/* <ListItem button onClick={this.handleMessage}>
-                            <ListItemIcon>
-                                <MailIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="All mail" />
-                        </ListItem> */}
-
-                    
             {/* Map of past articles should go here */}
             <div>
                 {/* {console.log(this.state.user)} */}
@@ -714,7 +743,7 @@ class Home extends React.Component {
                 :this.state.user.articles.map((article, i) => {
                     return (<ListItem key={i} button onClick={() => { this.handlePastArticle(article); }}>
                         <ListItemIcon>
-                            <LogoutIcon />
+                            <Done />
                         </ListItemIcon>
                         <ListItemText primary={ i + 1} />
                     </ListItem>);
@@ -814,7 +843,7 @@ class Home extends React.Component {
                         </div>
                     </main>
                
-                {articlesMenu}
+                {chatDrawer}
 
                 </div>
             </div>
@@ -825,7 +854,7 @@ class Home extends React.Component {
         if (!this.state.loggedIn) {
             return <SignIn handleUser={this.handleUser} />;
         } else {
-            return chatDrawer;
+            return articlesMenu;
         }
     }         
 }
