@@ -147,10 +147,10 @@ class PersistentDrawer extends React.Component {
                 console.log("currentArticleId", myJson._id);
             })
             .catch(err => console.log(err))
+            
+
 
         socket.on("newMessage", this.something);
-
-        
 
         this.state = {
             open: false,
@@ -188,18 +188,20 @@ class PersistentDrawer extends React.Component {
 
             error: "",
 
-
         };
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    
     componentDidMount() {
 
         Promise.all([
             fetch('/api/currentarticle').then(response => response.json()),
             fetch('/api/user').then(response => response.json())
+           
+
         ]).then(data => {
             if (data[1].user) {
                 this.setState({
@@ -207,6 +209,53 @@ class PersistentDrawer extends React.Component {
                     loggedIn: true,
                     currentArticleId: data[0]._id,
                 })
+
+                //Get route to see if a user has a discussion on load
+
+
+                console.log("current UserId", this.state.user._id)
+
+                fetch(`/api/discussion/${this.state.currentArticleId}/${this.state.user._id}`)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then((myJson) => {
+
+                        if(myJson){
+
+                        console.log(myJson);
+
+                        if(myJson){
+
+                        this.setState(
+                            {
+                                discussionId: myJson._id,
+                                reacted: true,
+                                // message: "",
+                                // messagesArray: [...this.state.messagesArray, myJson[0].messages[myJson[0].messages.length - 1]]
+                            }
+                        );
+
+                    //add here 
+                    switchRoom(myJson._id);
+                
+                    } else{
+                            this.setState(
+                                {
+                                    reacted: false,
+                                }
+                            );
+                    }
+                }
+
+                    }).catch((error) => {
+                        console.log(error)
+                        // this.setState({ "user": null, "loggedIn": false });
+                    });
+
+                    
+
+            
             }
             // console.log("user", this.state.user)
         })
@@ -231,6 +280,8 @@ class PersistentDrawer extends React.Component {
         }).catch((error) => {
             this.setState({ "user": null, "loggedIn": false });
         });
+
+        window.location.reload();
 
     }
 
@@ -462,13 +513,43 @@ class PersistentDrawer extends React.Component {
                         discussionId: myJSON._id
                     }
                 );
-
-            } else {
-
             }
         }).catch((reason) => {
             this.setState({ "error": "Username or password incorrect!" });
         });
+            // /api/reactions /: user1 /: user2
+
+            fetch(`/api/reactions/${this.state.user._id}/${value}`, {
+                method: 'Put',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then((response) => {
+                return response.json();
+            }).then((myJSON) => {
+                console.log(myJSON);
+                if (myJSON) {
+
+                    this.setState(
+                        {
+
+                            forceUpdate: Math.random()
+                            // message: "",
+                            // messagesArray: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length-1]] 
+                        }
+                    );
+    
+                } else {
+                    this.setState(
+                        {
+                            message: "error"
+                        }
+                    );
+                }
+            }).catch((reason) => {
+                console.log(reason);
+            });      
     }
     else {
         console.log("didn't work")
@@ -541,14 +622,44 @@ class PersistentDrawer extends React.Component {
     // }
     
     handlePastArticle = (articleId) => {
-        console.log("inside handleSelectPastArticle");
-        console.log(articleId);
+
+        console.log("inside handleSelectPastArticle", articleId);
         let currentVersion = this.state.articleNumber;
         currentVersion++;
-        this.setState({"currentArticleId": articleId, "articleNumber": currentVersion, "react": true});
-        console.log(this.state.currentArticleId);
+        
+
+
+        fetch(`/api/discussion/${articleId}/${this.state.user._id}`)
+            .then(function (response) {
+                return response.json();
+            })
+            .then((myJson) => {
+
+                console.log(myJson);
+
+                this.setState(
+                    {
+
+                        "currentArticleId": articleId,
+                        "articleNumber": currentVersion,
+                        discussionId: myJson._id,
+                        reacted: true,
+                        // message: "",
+                        // messagesArray: [...this.state.messagesArray, myJson[0].messages[myJson[0].messages.length - 1]]
+                    }
+                );
+
+                //add here 
+                switchRoom(myJson._id);
+
+            }).catch((error) => {
+                console.log(error)
+                // this.setState({ "user": null, "loggedIn": false });
+            });
+
     }
     
+
 
 
 ////Drawer Methods/////////////////////////////////////////////////////////////////////////////////////
@@ -627,8 +738,10 @@ class PersistentDrawer extends React.Component {
 
                     <div>
                     {/* Chat send message */}
+
+                    
                         
-                    <form className={classes.form} onSubmit={this.handleMessage}>
+                        <form className={classes.form} onSubmit={this.handleMessage}>
                           
 
                             <FormControl margin="normal" required fullWidth>
@@ -643,6 +756,8 @@ class PersistentDrawer extends React.Component {
                                 margin="normal"
                             />
                             </FormControl>
+
+
 
                             <Button
                                 type="submit"
@@ -698,8 +813,8 @@ class PersistentDrawer extends React.Component {
 
                     
             {/* Map of past articles should go here */}
-            <tbody>
-                {console.log(this.state.user)}
+            <div>
+                {/* {console.log(this.state.user)} */}
                 {(!this.state.loggedIn)
                 ?<p>Placeholder</p>
                 :this.state.user.articles.map((article, i) => {
@@ -710,7 +825,7 @@ class PersistentDrawer extends React.Component {
                         <ListItemText primary={i + 1} />
                     </ListItem>);
                 })}
-            </tbody>
+            </div>
                     
 
                     </Drawer>
@@ -730,15 +845,27 @@ class PersistentDrawer extends React.Component {
             {/* The article */}
                             <Article article={currentArticleId} key={this.state.articleNumber}/>
 
+
             {/* Reactions */}
-                            {this.state.reacted ? <Reactions key={this.state.forceUpdate} handleUser={this.handleCreateChat} articleId={currentArticleId} /> : ""}
-                            
-                            
+                            {this.state.reacted ? 
+
+                            <Reactions
+                            key={this.state.forceUpdate}
+                            handleUser={this.handleCreateChat}
+                            articleId={currentArticleId} 
+                            inDiscussion={this.state.discussionId}/> 
+
+                               : ""
+                               
+                               }
+                                                       
             {/* Post a reaction form */}
+
+            { !this.state.reacted ? 
                             <form
                              className={classes.form}
                              onSubmit={this.handleReaction}
-                              style={{maxWidth: 800, marginRight: "auto",marginLeft: "auto" }}>
+                            style={{maxWidth: 700, marginRight: "auto",marginLeft: "auto" }}>
 
 
                                 <FormControl margin="normal" required fullWidth>
@@ -775,7 +902,10 @@ class PersistentDrawer extends React.Component {
                                     Post Reaction
                                 </Button>
                             </form>
+
+                            : "" }
                             {/* {this.props.children} */}
+
 
                         </div>
                     </main>
