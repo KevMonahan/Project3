@@ -46,7 +46,6 @@ class Article extends React.Component {
                 // console.log(myJson);
                 // console.log(this.state.response.body)
             });
-
     }
 
 
@@ -55,11 +54,12 @@ class Article extends React.Component {
         return (
 
     <div style={styles}>
-    <h1>{this.state.response.headline}</h1>
-    {/* {this.state.response.body} */}
+    {this.props.reacted ? <h1>{this.state.response.headline}</h1> : <h1>The Daily Article</h1> }
+    {this.props.reacted ? <h2>◆ {this.state.response.author} ◆</h2> : "" }
+    {this.props.reacted ? <h3>'{this.state.response.article_url}'</h3> : ""}
     <div style={{ whiteSpace: "pre-wrap" }}>{this.state.response.body}</div>
 
-    {/* {console.log(this.state.response.body)} */}
+    {/* {console.log(this.state.response.body)} */} 
 </div>
 
         )

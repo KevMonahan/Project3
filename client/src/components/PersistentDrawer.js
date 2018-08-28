@@ -1,17 +1,13 @@
-/// Tomorrow to do.
-// Put request to update user articles when a reaction is submitted
-// Put request to update reaction wantsdiscussions to false when a discussion is created
-// Get current discussion based on userId and Article
+/// Tonight to do.
+
 // Chat
+
 // Reaction Submit (if user has already reacted disable reaction form) 
 // (show comments/context)
+
 // hide title until reacted show title author website after reacted
 
 // Clean up code / styling
-// Previous Articles List and update components on selection
-// server scheduler for scrape (or manual scrape route)
-// deploy
-
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -139,7 +135,6 @@ class PersistentDrawer extends React.Component {
     constructor(props) {
         super(props);
 
-
         fetch('/api/currentarticle')
             .then(response => response.json())
             .then(myJson => {
@@ -148,8 +143,6 @@ class PersistentDrawer extends React.Component {
             })
             .catch(err => console.log(err))
             
-
-
         socket.on("newMessage", this.something);
 
         this.state = {
@@ -210,8 +203,14 @@ class PersistentDrawer extends React.Component {
                     currentArticleId: data[0]._id,
                 })
 
+            // console.log(data[1].user.articles.indexOf(this.state.currentArticleId))
+            if (data[1].user.articles.indexOf(this.state.currentArticleId) !== -1){
+                this.setState({
+                    reacted: true,
+                })
+            }
+                
                 //Get route to see if a user has a discussion on load
-
 
                 console.log("current UserId", this.state.user._id)
 
@@ -230,13 +229,12 @@ class PersistentDrawer extends React.Component {
                         this.setState(
                             {
                                 discussionId: myJson._id,
-                                reacted: true,
+                                // reacted: true,
                                 // message: "",
-                                // messagesArray: [...this.state.messagesArray, myJson[0].messages[myJson[0].messages.length - 1]]
+                                messagesArray: [...myJson.messages]
                             }
                         );
 
-                    //add here 
                     switchRoom(myJson._id);
                 
                     } else{
@@ -253,9 +251,6 @@ class PersistentDrawer extends React.Component {
                         // this.setState({ "user": null, "loggedIn": false });
                     });
 
-                    
-
-            
             }
             // console.log("user", this.state.user)
         })
@@ -265,7 +260,6 @@ class PersistentDrawer extends React.Component {
     this.handleSync()
     console.log("message", message)
 }
-
 
     handleLogout = () => {
 
@@ -309,6 +303,14 @@ class PersistentDrawer extends React.Component {
 
     handleUser = (userData) => {
         this.setState({ "user": userData, "loggedIn": true });
+
+        // console.log(userData);
+        if (userData.articles.indexOf(this.state.currentArticleId) !== -1) {
+            this.setState({
+                reacted: true,
+            })
+        }
+
     }
 
     handleReaction = (event) => {
@@ -401,31 +403,6 @@ class PersistentDrawer extends React.Component {
         console.log("test")
 
 
-        // console.log(this.state.user._id)
-        // console.log(event)
-
-        // console.log(this.state)
-        let formData = {
-            _id: this.state.discussionId,
-        };
-
-        // console.log("socketTest", formData);
-
-        // fetch('/api/messages/' + this.state.discussionId, {
-        //     method: 'GET',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json'
-        //     }
-        // }).then((response) => {
-        //     return response.JSON();
-        //     // console.log("socket api response", response);
-        //     // this.setState({ "user": null, "loggedIn": false });
-        // }).then(data => console.log("socket api response", data))
-        // .catch((error) => {
-        //     this.setState({ message: "error" });
-        // });
-
         fetch('/api/messages/' + this.state.discussionId)
             .then(function (response) {
                 return response.json();
@@ -442,38 +419,6 @@ class PersistentDrawer extends React.Component {
                 );
 
             });
-
-
-        // fetch('/api/discussion/' + this.state.discussionId, {
-        //     method: 'Get',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(formData)
-        // }).then((response) => {
-        //     return response.json();
-        // }).then((myJSON) => {
-        //     console.log("socket api response",myJSON);
-        //     if (myJSON) {
-
-        //         this.setState(
-        //             {
-        //                 messagesArray: [...this.state.messagesArray, myJSON.messages[myJSON.messages.length - 1]]
-        //             }
-        //         );
-        //         console.log(this.state.messagesArray)
-        //     } else {
-        //         this.setState(
-        //             {
-        //                 message: "error"
-        //             }
-        //         );
-        //     }
-        // }).catch((reason) => {
-        //     this.setState({ "error": "Username or password incorrect!" });
-        // });
-
 
     }
 
@@ -563,9 +508,7 @@ class PersistentDrawer extends React.Component {
         event.preventDefault();
 
             console.log(this.state.user._id)
-            // console.log(event)
 
-            // console.log(this.state)
             let formData = {
                 _id: this.state.discussionId,
                 messages: this.state.message
@@ -609,17 +552,7 @@ class PersistentDrawer extends React.Component {
         
     }
 
-    // getHeadline = (articleId) => {
-    //     fetch('/api/articles/' + articleId)
-    //     .then(response => response.json())
-    //     .then(myJson => {
-    //         console.log("trying to fetch read article headline");
-    //         this.setState({headline: myJson[0].headline});
-    //     })
-    //     .catch(err => {
-    //         console.log(err);
-    //     });
-    // }
+
     
     handlePastArticle = (articleId) => {
 
@@ -627,7 +560,6 @@ class PersistentDrawer extends React.Component {
         let currentVersion = this.state.articleNumber;
         currentVersion++;
         
-
 
         fetch(`/api/discussion/${articleId}/${this.state.user._id}`)
             .then(function (response) {
@@ -649,7 +581,6 @@ class PersistentDrawer extends React.Component {
                     }
                 );
 
-                //add here 
                 switchRoom(myJson._id);
 
             }).catch((error) => {
@@ -659,8 +590,6 @@ class PersistentDrawer extends React.Component {
 
     }
     
-
-
 
 ////Drawer Methods/////////////////////////////////////////////////////////////////////////////////////
 
@@ -692,7 +621,7 @@ class PersistentDrawer extends React.Component {
     render() {
 
         const { classes } = this.props;
-        const { anchor, open, currentArticleId} = this.state;
+        const { anchor, open, currentArticleId, reacted, articleNumber, user} = this.state;
 
         const drawer = (
             <Drawer
@@ -726,8 +655,10 @@ class PersistentDrawer extends React.Component {
                             // dense
                             button
                         >
-
-                            <ListItemText primary={`${value}`} /></ListItem>
+                            <ListItemText primary={`${value}`} />
+                        </ListItem>
+                            
+                            
                     ))}
 
 
@@ -740,11 +671,11 @@ class PersistentDrawer extends React.Component {
                     {/* Chat send message */}
 
                     
-                        
+                
                         <form className={classes.form} onSubmit={this.handleMessage}>
                           
 
-                            <FormControl margin="normal" required fullWidth>
+                            <FormControl margin="normal" required>
                             <TextField
                                 id="multiline-flexible"
                                 label="Message"
@@ -756,8 +687,6 @@ class PersistentDrawer extends React.Component {
                                 margin="normal"
                             />
                             </FormControl>
-
-
 
                             <Button
                                 type="submit"
@@ -843,25 +772,28 @@ class PersistentDrawer extends React.Component {
                         
 
             {/* The article */}
-                            <Article article={currentArticleId} key={this.state.articleNumber}/>
+                            <Article reacted={reacted} article={currentArticleId} key={articleNumber}/>
 
 
             {/* Reactions */}
-                            {this.state.reacted ? 
+            
+                            {/* {console.log("reacted", reacted)} */}
+                            {this.state.reacted ?  
 
                             <Reactions
                             key={this.state.forceUpdate}
                             handleUser={this.handleCreateChat}
                             articleId={currentArticleId} 
-                            inDiscussion={this.state.discussionId}/> 
+                            inDiscussion={this.state.discussionId}
+                            user={user}/>          
 
-                               : ""
-                               
-                               }
+                             : "" }
                                                        
             {/* Post a reaction form */}
 
-            { !this.state.reacted ? 
+            {/* { !this.state.reacted ||  */}
+            { !this.state.reacted &&
+    
                             <form
                              className={classes.form}
                              onSubmit={this.handleReaction}
@@ -903,7 +835,7 @@ class PersistentDrawer extends React.Component {
                                 </Button>
                             </form>
 
-                            : "" }
+                            }
                             {/* {this.props.children} */}
 
 
