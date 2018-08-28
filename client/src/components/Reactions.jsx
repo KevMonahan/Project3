@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
+
 import CommentIcon from '@material-ui/icons/Comment';
 
 const styles = theme => ({
@@ -47,8 +49,6 @@ class Reactions extends React.Component {
             .then(response => response.json())
             .then(myJson => {
                 this.setState({ reactions: myJson });
-                // console.log(myJson);
-                // console.log(this.state.reactions)
             });
     }
 
