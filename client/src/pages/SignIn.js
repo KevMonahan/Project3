@@ -27,7 +27,7 @@ const styles = theme => ({
         },
     },
     paper: {
-        marginTop: theme.spacing.unit * 8,
+        marginTop: theme.spacing.unit * 4,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -206,6 +206,11 @@ class SignIn extends React.Component {
             <React.Fragment>
                 <CssBaseline />
                 <main className={classes.layout}>
+                    
+                    <Typography variant="display2" style={{"text-align": "left"}}>The Article Daily</Typography>
+                    <Typography variant="headline" style={{"text-align": "left"}}>Deconstructing the news for constuctive discussions</Typography>
+                    <Typography variant="body2" style={{"text-align": "left"}}>Read a new article each day, give your initial thoughts on it, and find a discussion partner.  At the Article Daily, we strongly believe in looking at the cold, hard facts.  In reading the news, that means presenting information first without the triggering headlines.</Typography>
+                    
                     <Paper className={classes.paper}>
                         <Avatar className={classes.avatar}>
                             <LockIcon />
@@ -237,6 +242,7 @@ class SignIn extends React.Component {
                                     name="logpssw"
                                     type="password"
                                     id="password"
+                                    error={!(this.state.error === " ")}
                                     autoComplete="current-password"
                                     onChange={this.handleInputChange}
                                 />
@@ -263,6 +269,11 @@ class SignIn extends React.Component {
             <React.Fragment>
                 <CssBaseline />
                 <main className={classes.layout}>
+
+                    <Typography variant="display2" style={{"text-align": "left"}}>The Article Daily</Typography>
+                    <Typography variant="headline" style={{"text-align": "left"}}>Deconstructing the news for constuctive discussions</Typography>
+                 
+
                     <Paper className={classes.paper}>
                         <Avatar className={classes.avatar}>
                             <AddUser />
@@ -274,16 +285,6 @@ class SignIn extends React.Component {
 
                         <form className={classes.form} onSubmit={this.handleRegister}>
 
-
-                            {/* <FormControl margin="normal" required fullWidth>
-                                <InputLabel htmlFor="regusername">Username</InputLabel>
-                                <Input
-                                    value={this.state.regusername}
-                                    name="regusername"
-                                    id="regusername"
-                                    onChange={this.handleInputChange}
-                                />
-                            </FormControl> */}
                             <FormControl margin="normal" required fullWidth>
                                 <TextField
                                     id="regusername"
@@ -297,18 +298,6 @@ class SignIn extends React.Component {
                                 />
                             </FormControl>
 
-                            {/* <FormControl margin="normal" required fullWidth>
-                                <InputLabel htmlFor="email">Email Address</InputLabel>
-                                <Input
-                                    value={this.state.email}
-                                    id="email"
-                                    name="email"
-                                    autoComplete="email"
-                                    onChange={this.handleInputChange}
-                                    autoFocus
-                                />
-                            </FormControl> */}
-
                             <FormControl margin="normal" required fullWidth>
                                 <TextField
                                     id="email"
@@ -319,18 +308,6 @@ class SignIn extends React.Component {
                                     onChange={this.handleInputChange}
                                 />
                             </FormControl>
-
-                            {/* <FormControl margin="normal" required fullWidth>
-                                <InputLabel htmlFor="password">Password</InputLabel>
-                                <Input
-                                    value={this.state.regpssw}
-                                    name="regpssw"
-                                    type="password"
-                                    id="regPassword"
-                                    onChange={this.handleInputChange}
-                                    autoComplete="current-password"
-                                />
-                            </FormControl> */}
 
                             <FormControl margin="normal" required fullWidth>
                                 <TextField
@@ -346,16 +323,6 @@ class SignIn extends React.Component {
                                 />
                             </FormControl>
 
-                            {/* <FormControl margin="normal" required fullWidth>
-                                <InputLabel htmlFor="password">Confirm Password</InputLabel>
-                                <Input
-                                    value={this.state.conpssw}
-                                    name="conpssw"
-                                    type="password"
-                                    id="conPassword"
-                                    onChange={this.handleInputChange}
-                                />
-                            </FormControl> */}
 
                              <FormControl margin="normal" required fullWidth>
                                 <TextField
