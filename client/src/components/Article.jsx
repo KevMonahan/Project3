@@ -51,10 +51,10 @@ class Article extends React.Component {
         return (
 
     <div style={styles}>
-        {this.props.reacted ? <h1 style={{textAlign: "center"}}>{this.state.response.headline}</h1> : <h1>The Daily Article</h1> }
+        {this.props.reacted ? <h1 style={{ textAlign: "center" }}>{this.state.response.headline}</h1> : <h1 style={{ textAlign: "center" }}>The Daily Article</h1> }
         {this.props.reacted ? <h2 style={{ textAlign: "center"}}>◆ {this.state.response.author} ◆</h2> : "" }
                 {this.props.reacted ? <a href={this.state.response.article_url} target="_blank" style={{ textDecoration: "none" }}><h4 style={{ textAlign: "center" }}>'{this.state.response.article_url}'</h4></a> : ""}
-        <div style={{ whiteSpace: "pre-wrap", marginTop: "70px"}}>{this.state.response.body}</div>
+        <div style={{ whiteSpace: "pre-wrap", marginTop: "70px", textAlign: "left"}}>{this.state.response.body}</div>
 
         {/* {console.log(this.state.response.body)} */} 
     </div>
