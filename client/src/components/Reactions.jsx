@@ -63,6 +63,7 @@ class Reactions extends React.Component {
             return (
                 <div className={classes.root}>
                     <List>
+
                         {this.state.reactions.map(value => (
                             <ListItem
                                 key={value._id}
@@ -71,19 +72,19 @@ class Reactions extends React.Component {
                                 button
                                 
                             >
-                                
+ 
                                 {/* {console.log(this.props.inDiscussion)} */}
                                 <ListItemText primary={`${value.initial_opinion}`} />
                                 {/* {value.wants_discussion ?  */}
-                                {value.wants_discussion && !this.props.inDiscussion ? 
+                                {value.wants_discussion && !this.props.inDiscussion && this.props.user._id !== value._userId ? 
 
                                 <ListItemSecondaryAction >
                                     
                                         <IconButton aria-label="Comments"
-                                            style={{display: "block", backgroundColor: "blue"}}
+                                            style={{display: "block", backgroundColor: "gray"}}
                                             className={classes.listItem}
                                             onClick={this.handleInteraction}
-                                            id={value._id}
+                                            id={value._userId}
                                             test={"test"}>
 
                                             {/* <CommentIcon/> */}
