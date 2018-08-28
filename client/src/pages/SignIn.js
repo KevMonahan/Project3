@@ -33,6 +33,7 @@ const styles = theme => ({
         flexDirection: 'column',
         alignItems: 'center',
         padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
+        backgroundColor: "#eceef8"
     },
     avatar: {
         margin: theme.spacing.unit,

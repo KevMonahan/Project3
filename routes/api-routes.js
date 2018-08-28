@@ -180,7 +180,7 @@ module.exports = function (passport) {
                 console.log(err);
             }
             if (dbUser) {
-                res.json({ "success": false, "error": "Username already taken, pick another." });
+                return res.json({ "success": false, "usernameError": "Username already taken, pick another." });
             } else {
                 const newUser = {};
                 newUser["username"] = username;
@@ -200,7 +200,7 @@ module.exports = function (passport) {
 
                         createdUser["password_hash"] = undefined;
                         createdUser["password_salt"] = undefined;
-                        res.json({ "user": createdUser, "error": undefined });
+                        return res.json({ "user": createdUser, "error": undefined });
                     });
                 });
             }
