@@ -10,6 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import TextField from '@material-ui/core/TextField'
+import bgImage from './blurred.png';
 
 import LockIcon from '@material-ui/icons/LockOutlined';
 import AddUser from '@material-ui/icons/PersonAdd';
@@ -21,6 +22,7 @@ const styles = theme => ({
         display: 'block', // Fix IE11 issue.
         marginLeft: theme.spacing.unit * 3,
         marginRight: theme.spacing.unit * 3,
+
         [theme.breakpoints.up(400 + theme.spacing.unit * 3 * 2)]: {
             width: 400,
             marginLeft: 'auto',
@@ -28,12 +30,13 @@ const styles = theme => ({
         },
     },
     paper: {
-        marginTop: theme.spacing.unit * 4,
+        // marginTop: theme.spacing.unit * 4,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
-        backgroundColor: "#eceef8"
+        backgroundColor: "#eceef8",
+
     },
     avatar: {
         margin: theme.spacing.unit,
@@ -202,17 +205,23 @@ class SignIn extends React.Component {
 
         const login = (
             <React.Fragment>
-                <CssBaseline />
+                <CssBaseline/>
                 <main className={classes.layout}>
                     
-                    <Typography variant="display2" style={{textAlign: "left"}}>The Article Daily</Typography>
-                    <Typography variant="headline" style={{textAlign: "left"}}>Deconstructing the news for constuctive discussions</Typography>
-                    <Typography variant="body2" style={{textAlign: "left"}}>Read a new article each day, give your initial thoughts on it, and find a discussion partner.  At the Article Daily, we strongly believe in looking at the cold, hard facts.  In reading the news, that means presenting information first without the triggering headlines.</Typography>
+                    
                     
                     <Paper className={classes.paper}>
-                        <Avatar className={classes.avatar}>
+
+
+                        <div className="info">
+                            <Typography variant="display2" style={{ textAlign: "center", fontFamily: "Cardo" }}>The Article Daily</Typography>
+                            <Typography variant="headline" style={{ textAlign: "center" }}>Deconstructing the news for constuctive discussions</Typography>
+                        </div>
+
+                        <Avatar className={classes.avatar} style={{}}>
                             <LockIcon />
                         </Avatar>
+
                         <Typography variant="headline">Sign in</Typography>
                         <Button size="small" className={classes.button} onClick={this.handlePageSwitch(false)}>
                             Register
@@ -227,7 +236,7 @@ class SignIn extends React.Component {
                                     className={classes.textField}
                                     helperText={this.state.error}
                                     error={!(this.state.error === " ")}
-                                    margin="normal"
+                                    // margin="normal"
                                     onChange={this.handleInputChange}
                                 />
                             </FormControl>
@@ -251,12 +260,14 @@ class SignIn extends React.Component {
                                 variant="raised"
                                 color="primary"
                                 className={classes.submit}
-
                             >
                                 Sign in
-                        </Button>
+                            </Button>
                         </form>
+                        <Typography variant="body2" style={{ textAlign: "center", marginTop: "42px", marginBottom: "22px" }}>Read a new article each day, give your initial thoughts on it, and find a discussion partner.  At the Article Daily, we strongly believe in looking at the cold, hard facts.  In reading the news, that means presenting information first without the triggering headlines.</Typography>
+
                     </Paper>
+
                 </main>
             </React.Fragment>
         );
@@ -266,20 +277,22 @@ class SignIn extends React.Component {
         const register = (
             <React.Fragment>
                 <CssBaseline />
-                <main className={classes.layout}>
+                <main className={classes.layout} style={{height: "100vh"}}>
 
-                    <Typography variant="display2" style={{textAlign: "left"}}>The Article Daily</Typography>
-                    <Typography variant="headline" style={{textAlign: "left"}}>Deconstructing the news for constuctive discussions</Typography>
-                 
-
+             
+                
                     <Paper className={classes.paper}>
+
+                        <Typography variant="display2" style={{ textAlign: "center", fontFamily: "Cardo" }}>The Article Daily</Typography>
+                       <Typography variant="headline" style={{ textAlign: "center" }}>Deconstructing the news for constuctive discussions</Typography>
+                        
                         <Avatar className={classes.avatar}>
                             <AddUser />
                         </Avatar>
                         <Typography variant="headline">Register</Typography>
                         <Button size="small" className={classes.button} onClick={this.handlePageSwitch(true)}>
                             Sign In
-                    </Button>
+                        </Button>
 
                         <form className={classes.form} onSubmit={this.handleRegister}>
 
@@ -291,7 +304,7 @@ class SignIn extends React.Component {
                                     className={classes.textField}
                                     helperText={this.state.usernameError}
                                     error={!(this.state.usernameError === " ")}
-                                    margin="normal"
+                                    // margin="normal"
                                     onChange={this.handleInputChange}
                                 />
                             </FormControl>
@@ -302,7 +315,7 @@ class SignIn extends React.Component {
                                     label="Email Address"
                                     name="email"
                                     className={classes.textField}
-                                    margin="normal"
+                                    // margin="normal"
                                     onChange={this.handleInputChange}
                                 />
                             </FormControl>
@@ -316,7 +329,7 @@ class SignIn extends React.Component {
                                     className={classes.textField}
                                     helperText={this.state.passwordError}
                                     error={!(this.state.passwordError === " ")}
-                                    margin="normal"
+                                    // margin="normal"
                                     onChange={this.handleInputChange}
                                 />
                             </FormControl>
@@ -331,7 +344,7 @@ class SignIn extends React.Component {
                                     className={classes.textField}
                                     helperText={this.state.confirmPasswordError}
                                     error={!(this.state.confirmPasswordError === " ")}
-                                    margin="normal"
+                                    // margin="normal"
                                     onChange={this.handleInputChange}
                                 />
                             </FormControl>
@@ -354,11 +367,17 @@ class SignIn extends React.Component {
         );
 
 
-        if (this.state.loggingIn) {
-            return login;
-        } else {
-            return register;
-        }
+        return (
+            <div style={{ boxSizing: "border-box", padding:"40px", height: "100vh", background: `url(${bgImage})`, backgroundPosition: "center"}}>
+                {this.state.loggingIn ? login : register}
+            </div>
+        )
+
+    //     if (this.state.loggingIn) {
+    //         return login;
+    //     } else {
+    //         return register;
+    //     }
     }
 }
 
