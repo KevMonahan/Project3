@@ -110,3 +110,6 @@ Logs the user out and destroys the current cookie so that `req.user` is no longe
             "success": true
         }
 ```
+
+
+test
